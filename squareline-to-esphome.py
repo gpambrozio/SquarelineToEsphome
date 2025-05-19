@@ -111,16 +111,55 @@ def layout_parser(node: dict) -> dict:
             }
         }
 
+def hex_color(int_array: list) -> str:
+    """Convert a list of 4 integers to a hex color string"""
+    if len(int_array) != 4:
+        return "0x000000"
+    r, g, b, _ = int_array
+    return f"0x{r:02x}{g:02x}{b:02x}"
+
+def style_parser(node: dict) -> dict:
+    children = node.get("childs", [])
+    result = {
+        "pad_left": 0,
+        "pad_right": 0,
+        "pad_top": 0,
+        "pad_bottom": 0,
+    }
+    for child in children:
+        if child["strtype"] == "_style/StyleState":
+            grandchildren = child.get("childs", [])
+            for grandchild in grandchildren:
+                if grandchild["strtype"] == "_style/Padding":
+                    paddings = zip(("pad_left", "pad_right", "pad_top", "pad_bottom"), grandchild["intarray"])
+                    result.update({k: v for k, v in paddings})
+
+                elif grandchild["strtype"] == "_style/Bg_Radius":
+                    result["radius"] = grandchild["integer"]
+
+                elif grandchild["strtype"] == "_style/Bg_Color":
+                    result["bg_color"] = hex_color(grandchild["intarray"])
+
+                elif grandchild["strtype"] == "_style/Border width":
+                    result["border_width"] = grandchild["integer"]
+
+                elif grandchild["strtype"] == "_style/Border_Color":
+                    result["border_color"] = hex_color(grandchild["intarray"])
+
+            break
+
+    return result
 
 # Individual SquareLine property → YAML key + optional post-processing lambda
 PROP_MAP = {
     # Common object properties
-    "OBJECT/Name":         ("id",          lambda v: slugify(v["strval"])),
-    "OBJECT/Align":        ("align",       lambda v: v["strval"]),
-    "OBJECT/Position":     (("x", "y"),    lambda v: v["intarray"]),
-    "OBJECT/Size":         (None,          size_parser),
-    "OBJECT/Scrollable":   ("scrollable",  lambda v: v["strval"].lower() == "true"),
-    "OBJECT/Layout_type":  (None,          layout_parser),
+    "OBJECT/Name":          ("id",          lambda v: slugify(v["strval"])),
+    "OBJECT/Align":         ("align",       lambda v: v["strval"]),
+    "OBJECT/Position":      (("x", "y"),    lambda v: v["intarray"]),
+    "OBJECT/Size":          (None,          size_parser),
+    "OBJECT/Scrollable":    ("scrollable",  lambda v: v["strval"].lower() == "true"),
+    "OBJECT/Layout_type":   (None,          layout_parser),
+    "CONTAINER/Style_main": (None,          style_parser),
 
     # Label properties
     "LABEL/Text":          ("text",        lambda v: v["strval"]),
