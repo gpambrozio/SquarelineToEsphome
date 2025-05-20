@@ -25,6 +25,7 @@ TYPE_MAP = {
     "CONTAINER": "obj",          # Container also maps to obj
     "TEXTAREA":  "textarea",
     "TABVIEW":   "tabview",
+    "TABPAGE":   "tab",
 
     # Controller widgets
     "CHECKBOX":  "checkbox",
@@ -212,7 +213,12 @@ PROP_MAP = {
     "IMAGE/Pivot_y":      ("pivot_y",     lambda v: int(v["integer"])),
     "IMAGE/Rotation":     ("angle",       lambda v: float(v["integer"]) if "integer" in v else 0),
     "IMAGE/Scale":        ("zoom",        lambda v: float(v["integer"])),
-    
+
+    "TABVIEW/Tab_position": ("position",  lambda v: v["strval"].upper()),
+    "TABVIEW/Tab_size":   ("size",        lambda v: int(v["integer"])),
+    "TABPAGE/Name":       ("id",          lambda v: v["strval"]),
+    "TABPAGE/Title":      ("name",        lambda v: v["strval"]),
+
     "_event/EventHandler": (None,         event_handler),
 }
 
@@ -224,13 +230,6 @@ def get_prop(node: Dict, key: str) -> Optional[Dict]:
     """Return full property dict whose strtype matches key, else None"""
     return next((p for p in node.get("properties", []) if p["strtype"] == key), None)
 
-def extract_dimensions(node: Dict) -> Tuple[Optional[int], Optional[int]]:
-    """Extract width and height from a widget node if available"""
-    size_prop = get_prop(node, "OBJECT/Size")
-    if size_prop and "intarray" in size_prop:
-        return size_prop["intarray"][0], size_prop["intarray"][1]
-    return None, None
-
 def convert_widget(node: Dict, images: Dict) -> Optional[Dict]:
     """Return YAML snippet (dict) for a SquareLine widget node with coordinate conversion"""
     sl_type = node.get("saved_objtypeKey")
@@ -239,9 +238,6 @@ def convert_widget(node: Dict, images: Dict) -> Optional[Dict]:
         return None
 
     cfg = {}
-
-    # Get this widget's dimensions first
-    widget_width, widget_height = extract_dimensions(node)
 
     # Process all properties
     for sl_key, (yaml_key, func) in PROP_MAP.items():
@@ -266,13 +262,16 @@ def convert_widget(node: Dict, images: Dict) -> Optional[Dict]:
 
 
     # Recursively process child widgets
-    if node.get("children"):
-        children_yaml = []
-        for child in node["children"]:
-            child_widget = convert_widget(child, images)
-            if child_widget:
-                children_yaml.append(child_widget)
-        if children_yaml:
+    children_yaml = []
+    for child in node.get("children", []):
+        child_widget = convert_widget(child, images)
+        if child_widget:
+            children_yaml.append(child_widget)
+
+    if children_yaml:
+        if yaml_root_key == "tabview":
+            cfg["tabs"] = [p["tab"] for p in children_yaml]
+        else:
             cfg["widgets"] = children_yaml
 
     return {yaml_root_key: cfg}
