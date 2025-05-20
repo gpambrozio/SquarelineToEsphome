@@ -76,7 +76,9 @@ def event_parser(node: dict) -> dict:
                 for grandchild in child["childs"]:
                     if grandchild["strtype"] == "CALL FUNCTION/Function_name":
                         script = grandchild["strval"]
-                        handlers.append({"script.execute": script})
+                        handlers.append({
+                            "lambda": f"id({script})->execute(x);",
+                        })
                         break
 
             elif child["strval"] == "LABEL_PROPERTY":
