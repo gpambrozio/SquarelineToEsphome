@@ -163,7 +163,7 @@ def style_parser(node: dict) -> dict:
             for grandchild in grandchildren:
                 if grandchild["strtype"] == "_style/Padding":
                     paddings = zip(("pad_left", "pad_right", "pad_top", "pad_bottom"), grandchild["intarray"])
-                    result.update({k: v for k, v in paddings})
+                    result = deep_update(result, {k: v for k, v in paddings})
 
                 elif grandchild["strtype"] == "_style/Bg_Radius":
                     result["radius"] = grandchild["integer"]
@@ -187,8 +187,14 @@ PROP_MAP = {
     "OBJECT/Name":          ("id",          lambda v: slugify(v["strval"])),
     "OBJECT/Align":         ("align",       lambda v: v["strval"]),
     "OBJECT/Position":      (("x", "y"),    lambda v: v["intarray"]),
-    "OBJECT/Size":          (None,          size_parser),
+    "OBJECT/Disabled":      (None,          lambda v: {"state": {"disabled": v["strval"].lower() == "true"}}),
+    "OBJECT/Checked":       ("checked",     lambda v: {"state": {"checked": v["strval"].lower() == "true"}}),
+    "OBJECT/Focused":       ("focused",     lambda v: v["strval"].lower() == "true"),
+    "OBJECT/Pressed":       ("pressed",     lambda v: v["strval"].lower() == "true"),
+    "OBJECT/Edited":        ("edited",      lambda v: v["strval"].lower() == "true"),
+    
     "OBJECT/Scrollable":    ("scrollable",  lambda v: v["strval"].lower() == "true"),
+    "OBJECT/Size":          (None,          size_parser),
     "OBJECT/Layout_type":   (None,          layout_parser),
     "CONTAINER/Style_main": (None,          style_parser),
 
@@ -260,6 +266,14 @@ def get_prop(node: dict, key: str) -> Optional[dict]:
     """Return full property dict whose strtype matches key, else None"""
     return next((p for p in node.get("properties", []) if p["strtype"] == key), None)
 
+def deep_update(original, update_with):
+    for key, value in update_with.items():
+        if key in original and isinstance(original[key], dict) and isinstance(value, dict):
+            deep_update(original[key], value)
+        else:
+            original[key] = value
+    return original
+
 def convert_widget(node: dict, images: dict) -> Optional[dict]:
     """Return YAML snippet (dict) for a SquareLine widget node with coordinate conversion"""
     sl_type = node.get("saved_objtypeKey")
@@ -283,7 +297,7 @@ def convert_widget(node: dict, images: dict) -> Optional[dict]:
                 images[id] = processed
             cfg[yaml_key] = id
         elif isinstance(processed, dict):
-            cfg.update(processed)
+            cfg = deep_update(cfg, processed)
         elif isinstance(yaml_key, tuple):
             for k, v in zip(yaml_key, processed):
                 cfg[k] = v
