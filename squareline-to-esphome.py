@@ -59,25 +59,53 @@ EVENT_MAP = {
     "GESTURE_UP": "swipe_up",
 }
 
-def event_handler(node: dict) -> dict:
+object_map = {}
+
+def event_parser(node: dict) -> dict:
+    global object_map
+
     event = node["strval"]
     if event not in EVENT_MAP:
         return {}
     event = EVENT_MAP[event]
 
-    script = None
+    handlers = []
     for child in node["childs"]:
-        if child["strtype"] == "_event/action" and child["strval"] == "CALL FUNCTION":
-            for grandchild in child["childs"]:
-                if grandchild["strtype"] == "CALL FUNCTION/Function_name":
-                    script = grandchild["strval"]
+        if child["strtype"] == "_event/action":
+            if child["strval"] == "CALL FUNCTION":
+                for grandchild in child["childs"]:
+                    if grandchild["strtype"] == "CALL FUNCTION/Function_name":
+                        script = grandchild["strval"]
+                        handlers.append({"script.execute": script})
+                        break
 
-    if script is None:
-        return {}
+            elif child["strval"] == "LABEL_PROPERTY":
+                id = None
+                property = None
+                value = None
+                for grandchild in child["childs"]:
+                    if grandchild["strtype"] == "LABEL_PROPERTY/Target":
+                        id = grandchild["strval"]
+                    elif grandchild["strtype"] == "LABEL_PROPERTY/Property":
+                        property = grandchild["strval"]
+                    elif grandchild["strtype"] == "LABEL_PROPERTY/Value":
+                        value = grandchild["strval"]
+                if id and property and value:
+                    handlers.append({
+                        "lvgl.label.update": {
+                            "id": object_map[id],
+                            property.lower(): value,
+                        }
+                    })
 
-    return {
-        f"on_{event}": {"script.execute": script}
-    }
+    if handlers:
+        return {
+            f"on_{event}": {
+                "then": handlers,
+            }
+        }
+    return {}
+
 
 def size_parser(node: dict) -> dict:
     """Convert size property to a dict with width and height"""
@@ -219,18 +247,18 @@ PROP_MAP = {
     "TABPAGE/Name":       ("id",          lambda v: v["strval"]),
     "TABPAGE/Title":      ("name",        lambda v: v["strval"]),
 
-    "_event/EventHandler": (None,         event_handler),
+    "_event/EventHandler": (None,         event_parser),
 }
 
 def slugify(name: str) -> str:
     """make a YAML-friendly id: letters, digits, underscores only, lowercase"""
     return re.sub(r"[^0-9A-Za-z_]", "_", name).lower()
 
-def get_prop(node: Dict, key: str) -> Optional[Dict]:
+def get_prop(node: dict, key: str) -> Optional[dict]:
     """Return full property dict whose strtype matches key, else None"""
     return next((p for p in node.get("properties", []) if p["strtype"] == key), None)
 
-def convert_widget(node: Dict, images: Dict) -> Optional[Dict]:
+def convert_widget(node: dict, images: dict) -> Optional[dict]:
     """Return YAML snippet (dict) for a SquareLine widget node with coordinate conversion"""
     sl_type = node.get("saved_objtypeKey")
     yaml_root_key = TYPE_MAP.get(sl_type)
@@ -276,7 +304,7 @@ def convert_widget(node: Dict, images: Dict) -> Optional[Dict]:
 
     return {yaml_root_key: cfg}
 
-def convert_page(screen_node: Dict, images: Dict) -> Dict:
+def convert_page(screen_node: dict, images: dict) -> dict:
     """Convert a SCREEN object into an lvgl page entry"""
     name_prop = get_prop(screen_node, "OBJECT/Name")
     page_id = slugify(name_prop["strval"]) if name_prop else "page"
@@ -345,10 +373,44 @@ def convert_all_images(folder: str, images: Dict) -> Dict:
         converted[k] = dst
     return converted
 
+def create_object_map(data: dict) -> dict:
+    """
+    Create a map of all objects with their Object/Name as key and their guid as value.
+    This allows for easier referencing of objects by name instead of GUID.
+    """
+    global object_map
+    object_map = {}
+
+    def process_node(node):
+        if isinstance(node, dict):
+            # Check if this is an object with a name and guid
+            name_prop = get_prop(node, "OBJECT/Name")
+            if name_prop and "guid" in node:
+                object_name = name_prop["strval"]
+                object_guid = node["guid"]
+                object_map[object_guid] = slugify(object_name)
+
+            # Also check for TABPAGE/Name which is used for tab pages
+            tab_name_prop = get_prop(node, "TABPAGE/Name")
+            if tab_name_prop and "guid" in node:
+                tab_name = tab_name_prop["strval"]
+                tab_guid = node["guid"]
+                object_map[tab_guid] = slugify(tab_name)
+
+            # Recursively process children
+            for child in node.get("children", []):
+                process_node(child)
+
+    # Start processing from the root
+    process_node(data["root"])
+
 
 def main(path: str):
     data = json.loads(Path(path).read_text())
     folder = os.path.dirname(path)
+
+    # Create a map of object names to GUIDs
+    create_object_map(data)
 
     # Walk root → pages (SCREEN objects)
     pages = []
