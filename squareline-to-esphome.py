@@ -216,7 +216,7 @@ def style_parser(node: dict) -> dict:
                     result["bg_color"] = hex_color(grandchild["intarray"])
 
                 elif grandchild["strtype"] == "_style/Border width":
-                    result["border_width"] = grandchild["integer"]
+                    result["border_width"] = grandchild.get("integer", 0)
 
                 elif grandchild["strtype"] == "_style/Border_Color":
                     result["border_color"] = hex_color(grandchild["intarray"])
