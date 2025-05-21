@@ -9,6 +9,10 @@ import os
 import os.path
 import re
 import sys
+import time
+import threading
+import termios
+import tty
 from pathlib import Path
 
 import pyperclip
@@ -468,6 +472,40 @@ def create_object_map(data: dict) -> dict:
     process_node(data["root"])
 
 
+def monitor_input_file(path, process_func):
+    """
+    Monitor the input file for changes and re-run process_func when it changes.
+    Exits when the user presses 'q'.
+    """
+    print("Monitoring for changes. Press 'q' to quit.")
+    last_mtime = None
+    stop_event = threading.Event()
+
+    def key_listener():
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setcbreak(fd)
+            while not stop_event.is_set():
+                if sys.stdin.read(1) == "q":
+                    stop_event.set()
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+    listener_thread = threading.Thread(target=key_listener, daemon=True)
+    listener_thread.start()
+
+    while not stop_event.is_set():
+        try:
+            mtime = os.path.getmtime(path)
+            if last_mtime is None or mtime != last_mtime:
+                last_mtime = mtime
+                process_func()
+        except Exception as e:
+            print(f"Error monitoring file: {e}", file=sys.stderr)
+        time.sleep(1)
+
+
 def main():
     # Set up command line argument parsing
     parser = argparse.ArgumentParser(
@@ -479,6 +517,9 @@ def main():
         "-c", "--clipboard", action="store_true", help="Copy output to clipboard"
     )
     parser.add_argument("-s", "--stdout", action="store_true", help="Output to stdout")
+    parser.add_argument(
+        "-m", "--monitor", action="store_true", help="Monitor input file for changes"
+    )
 
     args = parser.parse_args()
 
@@ -487,72 +528,81 @@ def main():
         args.stdout = True
 
     path = args.input_file
-    data = json.loads(Path(path).read_text())
-    folder = os.path.dirname(path)
 
-    # Create a map of object names to GUIDs
-    create_object_map(data)
+    def process():
+        data = json.loads(Path(path).read_text())
+        folder = os.path.dirname(path)
 
-    # Walk root → pages (SCREEN objects)
-    pages = []
-    images = {}
+        # Create a map of object names to GUIDs
+        create_object_map(data)
 
-    def recurse(node):
-        if isinstance(node, dict):
-            if node.get("saved_objtypeKey") == "SCREEN":
-                pages.append(convert_page(node, images))
-            for child in node.get("children", []):
-                recurse(child)
+        # Walk root → pages (SCREEN objects)
+        pages = []
+        images = {}
 
-    recurse(data["root"])
+        def recurse(node):
+            if isinstance(node, dict):
+                if node.get("saved_objtypeKey") == "SCREEN":
+                    pages.append(convert_page(node, images))
+                for child in node.get("children", []):
+                    recurse(child)
 
-    images = convert_all_images(folder, images)
+        recurse(data["root"])
 
-    images = [
-        {
-            "id": key,
-            "file": os.path.join(folder, value),
-            "type": "RGB565",
-            "transparency": "alpha_channel",
+        img_dict = convert_all_images(folder, images)
+
+        images_list = [
+            {
+                "id": key,
+                "file": os.path.join(folder, value),
+                "type": "RGB565",
+                "transparency": "alpha_channel",
+            }
+            for key, value in img_dict.items()
+        ]
+
+        lvgl_yaml = {
+            "lvgl": {"pages": pages},
         }
-        for key, value in images.items()
-    ]
 
-    lvgl_yaml = {
-        "lvgl": {"pages": pages},
-    }
+        if images_list:
+            lvgl_yaml["image"] = images_list
 
-    if images:
-        lvgl_yaml["image"] = images
+        output = yaml.dump(
+            lvgl_yaml,
+            sort_keys=False,
+            width=88,
+            default_flow_style=False,
+            allow_unicode=True,
+        )
 
-    output = yaml.dump(
-        lvgl_yaml,
-        sort_keys=False,
-        width=88,
-        default_flow_style=False,
-        allow_unicode=True,
-    )
+        # Handle output based on command line arguments
+        if args.stdout:
+            print(output)
 
-    # Handle output based on command line arguments
-    if args.stdout:
-        print(output)
+        if args.clipboard:
+            try:
+                pyperclip.copy(output)
+                if args.stdout:
+                    print("Output copied to clipboard.", file=sys.stderr)
+            except Exception as e:
+                print(f"Failed to copy to clipboard: {str(e)}", file=sys.stderr)
 
-    if args.clipboard:
-        try:
-            pyperclip.copy(output)
-            if args.stdout:
-                print("Output copied to clipboard.", file=sys.stderr)
-        except Exception as e:
-            print(f"Failed to copy to clipboard: {str(e)}", file=sys.stderr)
+        if args.output:
+            try:
+                with open(args.output, "w") as f:
+                    f.write(output)
+                if args.stdout:
+                    print(f"Output written to {args.output}", file=sys.stderr)
+            except Exception as e:
+                print(
+                    f"Failed to write to file {args.output}: {str(e)}", file=sys.stderr
+                )
 
-    if args.output:
-        try:
-            with open(args.output, "w") as f:
-                f.write(output)
-            if args.stdout:
-                print(f"Output written to {args.output}", file=sys.stderr)
-        except Exception as e:
-            print(f"Failed to write to file {args.output}: {str(e)}", file=sys.stderr)
+    if args.monitor:
+        monitor_input_file(path, process)
+    else:
+        process()
 
 
 if __name__ == "__main__":
