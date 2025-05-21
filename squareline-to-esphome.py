@@ -3,6 +3,7 @@
 squareline-to-esphome.py  -  Convert SquareLine *.spj JSON to ESPHome-LVGL YAML.
 """
 
+import argparse
 import json
 import yaml            # pip install pyyaml
 from PIL import Image
@@ -421,7 +422,21 @@ def create_object_map(data: dict) -> dict:
     process_node(data["root"])
 
 
-def main(path: str):
+def main():
+    # Set up command line argument parsing
+    parser = argparse.ArgumentParser(description='Convert SquareLine *.spj JSON to ESPHome-LVGL YAML')
+    parser.add_argument('input_file', help='Input SquareLine project file (.spj)')
+    parser.add_argument('-o', '--output', help='Output file path')
+    parser.add_argument('-c', '--clipboard', action='store_true', help='Copy output to clipboard')
+    parser.add_argument('-s', '--stdout', action='store_true', help='Output to stdout')
+
+    args = parser.parse_args()
+
+    # If no output options specified, default to both stdout and clipboard (original behavior)
+    if not (args.output or args.clipboard or args.stdout):
+        args.stdout = True
+
+    path = args.input_file
     data = json.loads(Path(path).read_text())
     folder = os.path.dirname(path)
 
@@ -468,13 +483,28 @@ def main(path: str):
             default_flow_style=False,
             allow_unicode=True,
         )
-    print(output)
 
-    # Copy output to clipboard
-    pyperclip.copy(output)
+    # Handle output based on command line arguments
+    if args.stdout:
+        print(output)
+
+    if args.clipboard:
+        try:
+            pyperclip.copy(output)
+            if args.stdout:
+                print("Output copied to clipboard.", file=sys.stderr)
+        except Exception as e:
+            print(f"Failed to copy to clipboard: {str(e)}", file=sys.stderr)
+
+    if args.output:
+        try:
+            with open(args.output, 'w') as f:
+                f.write(output)
+            if args.stdout:
+                print(f"Output written to {args.output}", file=sys.stderr)
+        except Exception as e:
+            print(f"Failed to write to file {args.output}: {str(e)}", file=sys.stderr)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(f"usage: {sys.argv[0]} <project.spj>", file=sys.stderr)
-        sys.exit(1)
-    main(sys.argv[1])
+    main()
