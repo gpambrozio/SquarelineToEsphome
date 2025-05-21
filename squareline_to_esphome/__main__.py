@@ -10,7 +10,6 @@ import os.path
 import re
 import sys
 from pathlib import Path
-from typing import Dict, Optional
 
 import pyperclip
 import yaml  # pip install pyyaml
@@ -301,7 +300,7 @@ def slugify(name: str) -> str:
     return re.sub(r"[^0-9A-Za-z_]", "_", name).lower()
 
 
-def get_prop(node: dict, key: str) -> Optional[dict]:
+def get_prop(node: dict, key: str) -> dict | None:
     """Return full property dict whose strtype matches key, else None"""
     return next((p for p in node.get("properties", []) if p["strtype"] == key), None)
 
@@ -319,7 +318,7 @@ def deep_update(original, update_with):
     return original
 
 
-def convert_widget(node: dict, images: dict) -> Optional[dict]:
+def convert_widget(node: dict, images: dict) -> dict | None:
     """Return YAML snippet (dict) for a SquareLine widget node with coordinate conversion"""
     sl_type = node.get("saved_objtypeKey")
     yaml_root_key = TYPE_MAP.get(sl_type)
@@ -428,7 +427,7 @@ def convert_to_rgb565(image_path: str) -> str:
         print(f"Error processing {image_path}: {str(e)}")
 
 
-def convert_all_images(folder: str, images: Dict) -> Dict:
+def convert_all_images(folder: str, images: dict) -> dict:
     converted = {}
     for k, v in images.items():
         src = os.path.join(folder, v)

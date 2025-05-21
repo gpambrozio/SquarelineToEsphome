@@ -1,0 +1,20 @@
+[project]
+name = "squareline-to-esphome"
+version = "0.1.0"
+description = "SquarelineToEsphome is a tool that converts UI projects created with SquareLine Studio into configuration files compatible with ESPHome"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pillow==11.2.1",
+    "pyperclip==1.9.0",
+    "pyyaml==6.0.2",
+    "setuptools>=80.8.0",
+]
+
+[project.scripts]
+squareline-to-esphome = "squareline_to_esphome.__main__:main"
+
+
+[build-system]
+requires = ["setuptools==80.8.0",]
+build-backend = "setuptools.build_meta"
