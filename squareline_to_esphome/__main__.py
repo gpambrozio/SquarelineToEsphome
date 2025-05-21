@@ -64,7 +64,7 @@ EVENT_MAP = {
 object_map = {}
 
 
-def event_parser(node: dict) -> dict:
+def event_parser(node: dict, yaml_root_key: str) -> dict:
     global object_map
 
     event = node["strval"]
@@ -79,9 +79,10 @@ def event_parser(node: dict) -> dict:
                 for grandchild in child["childs"]:
                     if grandchild["strtype"] == "CALL FUNCTION/Function_name":
                         script = grandchild["strval"]
+                        parameter = "tab" if yaml_root_key == "tabview" else "x"
                         handlers.append(
                             {
-                                "lambda": f"id({script})->execute(x);",
+                                "lambda": f"id({script})->execute({parameter});",
                             }
                         )
                         break
@@ -116,7 +117,7 @@ def event_parser(node: dict) -> dict:
     return {}
 
 
-def size_parser(node: dict) -> dict:
+def size_parser(node: dict, yaml_root_key: str) -> dict:
     """Convert size property to a dict with width and height"""
     # Bit 0x30: width is size_content
     # Bit 0x03: height is size_content
@@ -149,7 +150,8 @@ def size_parser(node: dict) -> dict:
         "height": height,
     }
 
-def layout_parser(node: dict) -> dict:
+
+def layout_parser(node: dict, yaml_root_key: str) -> dict:
     if node["LayoutType"] == 1:
         flow = "ROW" if node["Flow"] == 0 else "COLUMN"
         wrap = "_WRAP" if node["Wrap"] else ""
@@ -181,7 +183,7 @@ def hex_color(int_array: list) -> str:
     return f"0x{r:02x}{g:02x}{b:02x}"
 
 
-def style_parser(node: dict) -> dict:
+def style_parser(node: dict, yaml_root_key: str) -> dict:
     children = node.get("childs", [])
     result = {
         "pad_left": 0,
@@ -220,69 +222,75 @@ def style_parser(node: dict) -> dict:
 # Individual SquareLine property → YAML key + optional post-processing lambda
 PROP_MAP = {
     # Common object properties
-    "OBJECT/Name": ("id", lambda v: slugify(v["strval"])),
-    "OBJECT/Align": ("align", lambda v: v["strval"]),
-    "OBJECT/Position": (("x", "y"), lambda v: v["intarray"]),
+    "OBJECT/Name": ("id", lambda v, _: slugify(v["strval"])),
+    "OBJECT/Align": ("align", lambda v, _: v["strval"]),
+    "OBJECT/Position": (("x", "y"), lambda v, _: v["intarray"]),
     "OBJECT/Disabled": (
         None,
-        lambda v: {"state": {"disabled": v["strval"].lower() == "true"}},
+        lambda v, _: {"state": {"disabled": v["strval"].lower() == "true"}},
     ),
     "OBJECT/Checked": (
         "checked",
-        lambda v: {"state": {"checked": v["strval"].lower() == "true"}},
+        lambda v, _: {"state": {"checked": v["strval"].lower() == "true"}},
     ),
-    "OBJECT/Focused": ("focused", lambda v: v["strval"].lower() == "true"),
-    "OBJECT/Pressed": ("pressed", lambda v: v["strval"].lower() == "true"),
-    "OBJECT/Edited": ("edited", lambda v: v["strval"].lower() == "true"),
-    "OBJECT/Scrollable": ("scrollable", lambda v: v["strval"].lower() == "true"),
+    "OBJECT/Focused": ("focused", lambda v, _: v["strval"].lower() == "true"),
+    "OBJECT/Pressed": ("pressed", lambda v, _: v["strval"].lower() == "true"),
+    "OBJECT/Edited": ("edited", lambda v, _: v["strval"].lower() == "true"),
+    "OBJECT/Scrollable": ("scrollable", lambda v, _: v["strval"].lower() == "true"),
     "OBJECT/Size": (None, size_parser),
     "OBJECT/Layout_type": (None, layout_parser),
     "CONTAINER/Style_main": (None, style_parser),
     # Label properties
-    "LABEL/Text": ("text", lambda v: v["strval"]),
-    "LABEL/Long_mode": ("long_mode", lambda v: v["strval"].lower()),
-    "LABEL/Recolor": ("recolor", lambda v: v["strval"].lower() == "true"),
+    "LABEL/Text": ("text", lambda v, _: v["strval"]),
+    "LABEL/Long_mode": ("long_mode", lambda v, _: v["strval"].lower()),
+    "LABEL/Recolor": ("recolor", lambda v, _: v["strval"].lower() == "true"),
     # Button properties
-    "BUTTON/Checkable": ("checkable", lambda v: v["strval"].lower() == "true"),
+    "BUTTON/Checkable": ("checkable", lambda v, _: v["strval"].lower() == "true"),
     # Dropdown properties
-    "DROPDOWN/Options": ("options", lambda v: v["strval"].split("\\n")),
+    "DROPDOWN/Options": ("options", lambda v, _: v["strval"].split("\\n")),
     # Arc properties
-    "ARC/Range": (("min_value", "max_value"), lambda v: v["intarray"]),
-    "ARC/Value": ("value", lambda v: int(v["integer"])),
-    "ARC/Mode": ("mode", lambda v: v["strval"].upper()),
-    "ARC/Rotation": ("rotation", lambda v: int(v["integer"]) if "integer" in v else 0),
+    "ARC/Range": (("min_value", "max_value"), lambda v, _: v["intarray"]),
+    "ARC/Value": ("value", lambda v, _: int(v["integer"])),
+    "ARC/Mode": ("mode", lambda v, _: v["strval"].upper()),
+    "ARC/Rotation": (
+        "rotation",
+        lambda v, _: int(v["integer"]) if "integer" in v else 0,
+    ),
     # Bar properties
-    "BAR/Range": (("min_value", "max_value"), lambda v: v["intarray"]),
-    "BAR/Value": ("value", lambda v: int(v["integer"])),
-    "BAR/Mode": ("mode", lambda v: v["strval"].upper()),
+    "BAR/Range": (("min_value", "max_value"), lambda v, _: v["intarray"]),
+    "BAR/Value": ("value", lambda v, _: int(v["integer"])),
+    "BAR/Mode": ("mode", lambda v, _: v["strval"].upper()),
     # Slider properties
-    "SLIDER/Range": (("min_value", "max_value"), lambda v: v["intarray"]),
-    "SLIDER/Value": ("value", lambda v: int(v["integer"]) if "integer" in v else 0),
-    "SLIDER/Mode": ("mode", lambda v: v["strval"].upper()),
+    "SLIDER/Range": (("min_value", "max_value"), lambda v, _: v["intarray"]),
+    "SLIDER/Value": ("value", lambda v, _: int(v["integer"]) if "integer" in v else 0),
+    "SLIDER/Mode": ("mode", lambda v, _: v["strval"].upper()),
     # Roller properties
-    "ROLLER/Options": ("options", lambda v: v["strval"].split("\\n")),
-    "ROLLER/Selected": ("selected", lambda v: int(v["integer"])),
-    "ROLLER/Mode": ("mode", lambda v: v["strval"].upper()),
+    "ROLLER/Options": ("options", lambda v, _: v["strval"].split("\\n")),
+    "ROLLER/Selected": ("selected", lambda v, _: int(v["integer"])),
+    "ROLLER/Mode": ("mode", lambda v, _: v["strval"].upper()),
     # Spinbox properties
-    "SPINBOX/Value": ("value", lambda v: int(v["integer"])),
-    "SPINBOX/Range": (("min_value", "max_value"), lambda v: v["intarray"]),
+    "SPINBOX/Value": ("value", lambda v, _: int(v["integer"])),
+    "SPINBOX/Range": (("min_value", "max_value"), lambda v, _: v["intarray"]),
     # Switch properties
-    "SWITCH/Anim_time": ("anim_time", lambda v: v["strval"] + "ms"),
+    "SWITCH/Anim_time": ("anim_time", lambda v, _: v["strval"] + "ms"),
     # Textarea properties
-    "TEXTAREA/One_line": ("one_line", lambda v: v["strval"].lower() == "true"),
-    "TEXTAREA/Password": ("password", lambda v: v["strval"].lower() == "true"),
-    "TEXTAREA/Text": ("text", lambda v: v["strval"]),
-    "TEXTAREA/Placeholder": ("placeholder", lambda v: v["strval"]),
+    "TEXTAREA/One_line": ("one_line", lambda v, _: v["strval"].lower() == "true"),
+    "TEXTAREA/Password": ("password", lambda v, _: v["strval"].lower() == "true"),
+    "TEXTAREA/Text": ("text", lambda v, _: v["strval"]),
+    "TEXTAREA/Placeholder": ("placeholder", lambda v, _: v["strval"]),
     # Image properties
-    "IMAGE/Asset": ("src", lambda v: v["strval"]),
-    "IMAGE/Pivot_x": ("pivot_x", lambda v: int(v["integer"])),
-    "IMAGE/Pivot_y": ("pivot_y", lambda v: int(v["integer"])),
-    "IMAGE/Rotation": ("angle", lambda v: float(v["integer"]) if "integer" in v else 0),
-    "IMAGE/Scale": ("zoom", lambda v: float(v["integer"])),
-    "TABVIEW/Tab_position": ("position", lambda v: v["strval"].upper()),
-    "TABVIEW/Tab_size": ("size", lambda v: int(v["integer"])),
-    "TABPAGE/Name": ("id", lambda v: v["strval"]),
-    "TABPAGE/Title": ("name", lambda v: v["strval"]),
+    "IMAGE/Asset": ("src", lambda v, _: v["strval"]),
+    "IMAGE/Pivot_x": ("pivot_x", lambda v, _: int(v["integer"])),
+    "IMAGE/Pivot_y": ("pivot_y", lambda v, _: int(v["integer"])),
+    "IMAGE/Rotation": (
+        "angle",
+        lambda v, _: float(v["integer"]) if "integer" in v else 0,
+    ),
+    "IMAGE/Scale": ("zoom", lambda v, _: float(v["integer"])),
+    "TABVIEW/Tab_position": ("position", lambda v, _: v["strval"].upper()),
+    "TABVIEW/Tab_size": ("size", lambda v, _: int(v["integer"])),
+    "TABPAGE/Name": ("id", lambda v, _: v["strval"]),
+    "TABPAGE/Title": ("name", lambda v, _: v["strval"]),
     "_event/EventHandler": (None, event_parser),
 }
 
@@ -325,7 +333,7 @@ def convert_widget(node: dict, images: dict) -> dict | None:
         if prop is None:
             continue
 
-        processed = func(prop)
+        processed = func(prop, yaml_root_key)
 
         if sl_key == "IMAGE/Asset":
             id = processed.split("/")[-1].replace(".", "_").replace(" ", "_")
