@@ -118,48 +118,36 @@ def event_parser(node: dict) -> dict:
 
 def size_parser(node: dict) -> dict:
     """Convert size property to a dict with width and height"""
-    # 17 | 0b00010001 | both px
-    # 18 | 0b00010010 | width percent, height px
-    # 33 | 0b00100001 | width px, height percent
-    # 34 | 0b00100010 | both percent
-    # 51 | 0b00110011 | "size_content"
+    # Bit 0x30: width is size_content
+    # Bit 0x03: height is size_content
+    # Bit 0x20: width is percent
+    # Bit 0x02: height is percent
+    # Bit 0x10: width is px
+    # Bit 0x01: height is px
 
     flags = node["flags"]
+    size = node.get("intarray", [0, 0])
 
-    if flags == 17:
-        size = node["intarray"]
-        return {
-            "width": size[0],
-            "height": size[1],
-        }
+    # Width
+    if flags & 0x30 == 0x30:
+        width = "SIZE_CONTENT"
+    elif flags & 0x20 == 0x20:
+        width = f"{size[0]}%"
+    else:
+        width = size[0]
 
-    if flags == 18:
-        size = node["intarray"]
-        return {
-            "width": f"{size[0]}%",
-            "height": size[1],
-        }
+    # Height
+    if flags & 0x03 == 0x03:
+        height = "SIZE_CONTENT"
+    elif flags & 0x02 == 0x02:
+        height = f"{size[1]}%"
+    else:
+        height = size[1]
 
-    if flags == 33:
-        size = node["intarray"]
-        return {
-            "width": size[0],
-            "height": f"{size[1]}%",
-        }
-
-    if flags == 34:
-        size = node["intarray"]
-        return {
-            "width": f"{size[0]}%",
-            "height": f"{size[1]}%",
-        }
-
-    if flags == 51:
-        return {
-            "width": "SIZE_CONTENT",
-            "height": "SIZE_CONTENT",
-        }
-
+    return {
+        "width": width,
+        "height": height,
+    }
 
 def layout_parser(node: dict) -> dict:
     if node["LayoutType"] == 1:
