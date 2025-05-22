@@ -496,6 +496,7 @@ def monitor_input_file(path, process_func):
             mtime = os.path.getmtime(path)
             if last_mtime is None or mtime != last_mtime:
                 last_mtime = mtime
+                print(f"File {path} changed. Reprocessing...")
                 process_func()
         except Exception as e:
             print(f"Error monitoring file: {e}", file=sys.stderr)
