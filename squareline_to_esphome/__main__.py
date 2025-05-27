@@ -208,6 +208,9 @@ def style_parser(node: dict, yaml_root_key: str) -> dict:
                 elif grandchild["strtype"] == "_style/Bg_Color":
                     result["bg_color"] = hex_color(grandchild["intarray"])
 
+                elif grandchild["strtype"] == "_style/Text_Color":
+                    result["text_color"] = hex_color(grandchild["intarray"])
+
                 elif grandchild["strtype"] == "_style/Border width":
                     result["border_width"] = grandchild.get("integer", 0)
 
@@ -239,7 +242,23 @@ PROP_MAP = {
     "OBJECT/Scrollable": ("scrollable", lambda v, _: v["strval"].lower() == "true"),
     "OBJECT/Size": (None, size_parser),
     "OBJECT/Layout_type": (None, layout_parser),
+    "TABPAGE/Layout_type": (None, layout_parser),
+    # Styles
+    "ARC/Style_main": (None, style_parser),
+    "BAR/Style_main": (None, style_parser),
+    "BUTTON/Style_main": (None, style_parser),
     "CONTAINER/Style_main": (None, style_parser),
+    "DROPDOWN/Style_main": (None, style_parser),
+    "IMAGE/Style_main": (None, style_parser),
+    "LABEL/Style_main": (None, style_parser),
+    "ROLLER/Style_main": (None, style_parser),
+    "SCREEN/Style_main": (None, style_parser),
+    "SLIDER/Style_main": (None, style_parser),
+    "SPINBOX/Style_main": (None, style_parser),
+    "SWITCH/Style_main": (None, style_parser),
+    "TABPAGE/Style_main": (None, style_parser),
+    "TABVIEW/Style_main": (None, style_parser),
+    "TEXTAREA/Style_main": (None, style_parser),
     # Label properties
     "LABEL/Text": ("text", lambda v, _: v["strval"]),
     "LABEL/Long_mode": ("long_mode", lambda v, _: v["strval"].lower()),
