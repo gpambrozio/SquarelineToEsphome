@@ -131,17 +131,17 @@ def size_parser(node: dict, yaml_root_key: str) -> dict:
 
     # Width
     if flags & 0x30 == 0x30:
-        width = "SIZE_CONTENT"
-    elif flags & 0x20 == 0x20:
         width = f"{size[0]}%"
+    elif flags & 0x20 == 0x20:
+        width = "SIZE_CONTENT"
     else:
         width = size[0]
 
     # Height
     if flags & 0x03 == 0x03:
-        height = "SIZE_CONTENT"
-    elif flags & 0x02 == 0x02:
         height = f"{size[1]}%"
+    elif flags & 0x02 == 0x02:
+        height = "SIZE_CONTENT"
     else:
         height = size[1]
 
