@@ -221,6 +221,9 @@ def style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
                 elif grandchild["strtype"] == "_style/Text_Color":
                     result["text_color"] = hex_color(grandchild["intarray"])
 
+                elif grandchild["strtype"] == "_style/Text_Font":
+                    result["text_font"] = grandchild["strval"]
+
                 elif grandchild["strtype"] == "_style/Border width":
                     result["border_width"] = grandchild.get("integer", 0)
 
