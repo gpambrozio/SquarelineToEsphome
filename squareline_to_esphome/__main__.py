@@ -130,18 +130,18 @@ def size_parser(node: dict, yaml_root_key: str) -> dict:
     size = node.get("intarray", [0, 0])
 
     # Width
-    if flags & 0x30 == 0x30:
-        width = f"{size[0]}%"
-    elif flags & 0x20 == 0x20:
+    if flags & 0x03 == 0x03:
         width = "SIZE_CONTENT"
+    elif flags & 0x02 == 0x02:
+        width = f"{size[0]}%"
     else:
         width = size[0]
 
     # Height
-    if flags & 0x03 == 0x03:
-        height = f"{size[1]}%"
-    elif flags & 0x02 == 0x02:
+    if flags & 0x30 == 0x30:
         height = "SIZE_CONTENT"
+    elif flags & 0x20 == 0x20:
+        height = f"{size[1]}%"
     else:
         height = size[1]
 
