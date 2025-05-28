@@ -65,11 +65,12 @@ EVENT_MAP = {
 STYLE_PROPERTY_MAP = {
     # Background styles
     "_style/Bg_Color": lambda v: color_opa("bg_color", "bg_opa", v),
-    "_style/Bg_Grad_Color": lambda v: {"bg_grad_color": hex_color(v["intarray"])},
-    "_style/Bg_Grad_Dir": lambda v: {"bg_grad_dir": v["strval"].lower()},
-    "_style/Bg_Main_Stop": lambda v: {"bg_main_stop": v["integer"]},
-    "_style/Bg_Grad_Stop": lambda v: {"bg_grad_stop": v["integer"]},
-    "_style/Bg_Dither_Mode": lambda v: {"bg_dither_mode": v["strval"].lower()},
+    "_style/Bg_gradiens_Color": lambda v: {"bg_grad_color": hex_color(v["intarray"])},
+    "_style/Gradient direction": lambda v: {"bg_grad_dir": v["strval"].lower()},
+    "_style/Bg_gradient_params": lambda v: {
+        "bg_main_stop": v["intarray"][0],
+        "bg_grad_stop": v["intarray"][1],
+    },
     "_style/Bg_Image": lambda v: {"bg_image_src": v["strval"]},
     "_style/Bg_Image_Opa": lambda v: {"bg_image_opa": v["integer"]},
     "_style/Bg_Image_Recolor": lambda v: color_opa("bg_image_recolor", "bg_image_recolor_opa", v),
@@ -260,10 +261,13 @@ def layout_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
 
 def hex_color(int_array: list) -> str:
     """Convert a list of 4 integers to a hex color string"""
-    if len(int_array) != 4:
-        return "0x000000"
-    r, g, b, _ = int_array
-    return f"0x{r:02x}{g:02x}{b:02x}"
+    if len(int_array) == 4:
+        r, g, b, _ = int_array
+        return f"0x{r:02x}{g:02x}{b:02x}"
+    if len(int_array) == 3:
+        r, g, b = int_array
+        return f"0x{r:02x}{g:02x}{b:02x}"
+    return "0x000000"
 
 
 def color_opa(color_id: str, opa_id: str, node: dict) -> dict:
