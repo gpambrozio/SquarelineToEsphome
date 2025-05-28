@@ -16,7 +16,7 @@ import tty
 from pathlib import Path
 
 import pyperclip
-import yaml  # pip install pyyaml
+import yaml
 from PIL import Image
 
 # SquareLine object type → ESPHome YAML widget keyword
