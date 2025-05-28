@@ -64,8 +64,7 @@ EVENT_MAP = {
 # Style property mapping with lambdas for proper conversion
 STYLE_PROPERTY_MAP = {
     # Background styles
-    "_style/Bg_Color": lambda v: {"bg_color": hex_color(v["intarray"])},
-    "_style/Bg_Opa": lambda v: {"bg_opa": v["integer"]},
+    "_style/Bg_Color": lambda v: color_opa("bg_color", "bg_opa", v),
     "_style/Bg_Grad_Color": lambda v: {"bg_grad_color": hex_color(v["intarray"])},
     "_style/Bg_Grad_Dir": lambda v: {"bg_grad_dir": v["strval"].lower()},
     "_style/Bg_Main_Stop": lambda v: {"bg_main_stop": v["integer"]},
@@ -73,20 +72,17 @@ STYLE_PROPERTY_MAP = {
     "_style/Bg_Dither_Mode": lambda v: {"bg_dither_mode": v["strval"].lower()},
     "_style/Bg_Image": lambda v: {"bg_image_src": v["strval"]},
     "_style/Bg_Image_Opa": lambda v: {"bg_image_opa": v["integer"]},
-    "_style/Bg_Image_Recolor": lambda v: {"bg_image_recolor": hex_color(v["intarray"])},
-    "_style/Bg_Image_Recolor_Opa": lambda v: {"bg_image_recolor_opa": v["integer"]},
+    "_style/Bg_Image_Recolor": lambda v: color_opa("bg_image_recolor", "bg_image_recolor_opa", v),
     "_style/Bg_Image_Tiled": lambda v: {
         "bg_image_tiled": v["strval"].lower() == "true"
     },
     # Border styles
-    "_style/Border_Color": lambda v: {"border_color": hex_color(v["intarray"])},
-    "_style/Border_Opa": lambda v: {"border_opa": v["integer"]},
-    "_style/Border_width": lambda v: {"border_width": v["integer"]},
-    "_style/Border_Side": lambda v: {"border_side": v["strval"].lower()},
-    "_style/Border_Post": lambda v: {"border_post": v["strval"].lower() == "true"},
+    "_style/Border_Color": lambda v: color_opa("border_color", "border_opa", v),
+    "_style/Border width": lambda v: {"border_width": v.get("integer", 0)},
+    "_style/Border side": lambda v: {"border_side": ["TOP", "BOTTOM", "LEFT", "RIGHT"] if v["strval"] == "FULL" else v["strval"]},
+    "_style/Border post": lambda v: {"border_post": v["strval"].lower() == "true"},
     # Text styles
-    "_style/Text_Color": lambda v: {"text_color": hex_color(v["intarray"])},
-    "_style/Text_Opa": lambda v: {"text_opa": v["integer"]},
+    "_style/Text_Color": lambda v: color_opa("text_color", "text_opa", v),
     "_style/Text_Font": lambda v: {"text_font": v["strval"]},
     "_style/Text_Letter_Space": lambda v: {"text_letter_space": v["integer"]},
     "_style/Text_Line_Space": lambda v: {"text_line_space": v["integer"]},
@@ -94,16 +90,14 @@ STYLE_PROPERTY_MAP = {
     "_style/Text_Align": lambda v: {"text_align": v["strval"].lower()},
     # Outline styles
     "_style/Outline_Width": lambda v: {"outline_width": v["integer"]},
-    "_style/Outline_Color": lambda v: {"outline_color": hex_color(v["intarray"])},
-    "_style/Outline_Opa": lambda v: {"outline_opa": v["integer"]},
+    "_style/Outline_Color": lambda v: color_opa("outline_color", "outline_opa", v),
     "_style/Outline_Pad": lambda v: {"outline_pad": v["integer"]},
     # Shadow styles
     "_style/Shadow_Width": lambda v: {"shadow_width": v["integer"]},
     "_style/Shadow_Ofs_X": lambda v: {"shadow_ofs_x": v["integer"]},
     "_style/Shadow_Ofs_Y": lambda v: {"shadow_ofs_y": v["integer"]},
     "_style/Shadow_Spread": lambda v: {"shadow_spread": v["integer"]},
-    "_style/Shadow_Color": lambda v: {"shadow_color": hex_color(v["intarray"])},
-    "_style/Shadow_Opa": lambda v: {"shadow_opa": v["integer"]},
+    "_style/Shadow_Color": lambda v: color_opa("shadow_color", "shadow_opa", v),
     # Padding styles
     "_style/Padding": lambda v: {
         "pad_left": v["intarray"][0],
@@ -124,13 +118,11 @@ STYLE_PROPERTY_MAP = {
     "_style/Line_Dash_Width": lambda v: {"line_dash_width": v["integer"]},
     "_style/Line_Dash_Gap": lambda v: {"line_dash_gap": v["integer"]},
     "_style/Line_Rounded": lambda v: {"line_rounded": v["strval"].lower() == "true"},
-    "_style/Line_Color": lambda v: {"line_color": hex_color(v["intarray"])},
-    "_style/Line_Opa": lambda v: {"line_opa": v["integer"]},
+    "_style/Line_Color": lambda v: color_opa("line_color", "line_opa", v),
     # Arc styles
     "_style/Arc_Width": lambda v: {"arc_width": v["integer"]},
     "_style/Arc_Rounded": lambda v: {"arc_rounded": v["strval"].lower() == "true"},
-    "_style/Arc_Color": lambda v: {"arc_color": hex_color(v["intarray"])},
-    "_style/Arc_Opa": lambda v: {"arc_opa": v["integer"]},
+    "_style/Arc_Color": lambda v: color_opa("arc_color", "arc_opa", v),
     # Blend styles
     "_style/Blend_Mode": lambda v: {"blend_mode": v["strval"].lower()},
     # Transform styles
@@ -274,6 +266,23 @@ def hex_color(int_array: list) -> str:
     return f"0x{r:02x}{g:02x}{b:02x}"
 
 
+def color_opa(color_id: str, opa_id: str, node: dict) -> dict:
+    """Convert a color and opacity node to a dictionary"""
+    if "intarray" not in node:
+        return {}
+
+    components = node["intarray"]
+    color = hex_color(components)
+    if len(components) == 4:
+        opa = components[3]
+    else:
+        opa = 255  # Default opacity
+
+    if opa == 255:
+        return {color_id: color}
+    return {color_id: color, opa_id: opa / 255.0}
+
+
 def style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
     """Parse style properties from a node and return a dictionary of style properties"""
     children = node.get("childs", [])
@@ -298,7 +307,7 @@ def style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
 
                         # Handle image properties specially
                         for key, value in style_props.items():
-                            if "image" in key and isinstance(value, str):
+                            if "image_src" in key and isinstance(value, str):
                                 # Convert image source to slugified ID
                                 id = slugify_image(value)
                                 style_props[key] = id
