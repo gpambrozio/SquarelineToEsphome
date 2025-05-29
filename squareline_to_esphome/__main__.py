@@ -129,7 +129,7 @@ STYLE_PROPERTY_MAP = {
     # Transform styles
     "_style/Transform_Width": lambda v: {"transform_width": v["integer"]},
     "_style/Transform_Height": lambda v: {"transform_height": v["integer"]},
-    "_style/Transform_Zoom": lambda v: {"transform_zoom": float(v["integer"] / 255.0)},
+    "_style/Transform_Zoom": lambda v: {"transform_zoom": round(float(v["integer"] / 256.0), 2)},
     "_style/Transform_Angle": lambda v: {"transform_angle": v["integer"]},
     "_style/Transform_Pivot_X": lambda v: {"transform_pivot_x": v["integer"]},
     "_style/Transform_Pivot_Y": lambda v: {"transform_pivot_y": v["integer"]},
@@ -420,7 +420,7 @@ PROP_MAP = {
         "angle",
         lambda v, *args: float(v["integer"]) if "integer" in v else 0,
     ),
-    "IMAGE/Scale": ("zoom", lambda v, *args: float(v["integer"] / 255.0)),
+    "IMAGE/Scale": ("zoom", lambda v, *args: round(float(v["integer"] / 256.0), 2)),
     "TABVIEW/Tab_position": ("position", lambda v, *args: v["strval"].upper()),
     "TABVIEW/Tab_size": ("size", lambda v, *args: int(v["integer"])),
     "TABPAGE/Name": ("id", lambda v, *args: v["strval"]),
