@@ -12,15 +12,12 @@ SquarelineToEsphome is a tool that converts UI projects created with [SquareLine
 ## Usage
 
 1. Save your project in SquareLine Studio.
-2. Run the converter tool:
-    ```sh
-    python squareline_to_esphome.py path/to/project.sqproj
-    ```
-   Or, if you are using [uv](https://github.com/astral-sh/uv) for dependency management:
+2. Make sure to have `uv` installed. Follow instructions [here](https://github.com/astral-sh/uv?tab=readme-ov-file#installation)
+3. Run the converter tool:
     ```sh
     uv run squareline-to-esphome path/to/project.sqproj
     ```
-3. Use the generated YAML in your ESPHome configuration.
+4. Use the generated YAML in your ESPHome configuration.
 
 ### Command Line Options
 
