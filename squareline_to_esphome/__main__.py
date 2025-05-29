@@ -558,6 +558,9 @@ def convert_to_rgb565(image_path: str) -> str:
 def convert_all_images(folder: str, images: dict) -> dict:
     converted = {}
     for k, v in images.items():
+        if v == "":
+            print("Skipping empty image. Yaml will not compile")
+            continue
         src = os.path.join(folder, v)
         dst = convert_to_rgb565(src)
         converted[k] = dst
