@@ -110,8 +110,12 @@ STYLE_PROPERTY_MAP = {
     "_style/Pad_Right": lambda v: {"pad_right": v["integer"]},
     "_style/Pad_Top": lambda v: {"pad_top": v["integer"]},
     "_style/Pad_Bottom": lambda v: {"pad_bottom": v["integer"]},
-    "_style/Pad_Row": lambda v: {"pad_row": v["integer"]},
-    "_style/Pad_Column": lambda v: {"pad_column": v["integer"]},
+    "_style/Padding_RowCol": lambda v: {
+        "layout": {
+            "pad_row": v["intarray"][0],
+            "pad_column": v["intarray"][1],
+        },
+    },
     # Radius styles
     "_style/Bg_Radius": lambda v: {"radius": v["integer"]},
     # Line styles
