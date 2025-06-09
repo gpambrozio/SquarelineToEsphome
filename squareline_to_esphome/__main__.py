@@ -73,14 +73,20 @@ STYLE_PROPERTY_MAP = {
     },
     "_style/Bg_Image": lambda v: {"bg_image_src": v["strval"]},
     "_style/Bg_Image_Opa": lambda v: {"bg_image_opa": v["integer"]},
-    "_style/Bg_Image_Recolor": lambda v: color_opa("bg_image_recolor", "bg_image_recolor_opa", v),
+    "_style/Bg_Image_Recolor": lambda v: color_opa(
+        "bg_image_recolor", "bg_image_recolor_opa", v
+    ),
     "_style/Bg_Image_Tiled": lambda v: {
         "bg_image_tiled": v["strval"].lower() == "true"
     },
     # Border styles
     "_style/Border_Color": lambda v: color_opa("border_color", "border_opa", v),
     "_style/Border width": lambda v: {"border_width": v.get("integer", 0)},
-    "_style/Border side": lambda v: {"border_side": ["TOP", "BOTTOM", "LEFT", "RIGHT"] if v["strval"] == "FULL" else v["strval"]},
+    "_style/Border side": lambda v: {
+        "border_side": ["TOP", "BOTTOM", "LEFT", "RIGHT"]
+        if v["strval"] == "FULL"
+        else v["strval"]
+    },
     "_style/Border post": lambda v: {"border_post": v["strval"].lower() == "true"},
     # Text styles
     "_style/Text_Color": lambda v: color_opa("text_color", "text_opa", v),
@@ -133,7 +139,9 @@ STYLE_PROPERTY_MAP = {
     # Transform styles
     "_style/Transform_Width": lambda v: {"transform_width": v["integer"]},
     "_style/Transform_Height": lambda v: {"transform_height": v["integer"]},
-    "_style/Transform_Zoom": lambda v: {"transform_zoom": round(float(v["integer"] / 256.0), 2)},
+    "_style/Transform_Zoom": lambda v: {
+        "transform_zoom": round(float(v["integer"] / 256.0), 2)
+    },
     "_style/Transform_Angle": lambda v: {"transform_angle": v["integer"]},
     "_style/Transform_Pivot_X": lambda v: {"transform_pivot_x": v["integer"]},
     "_style/Transform_Pivot_Y": lambda v: {"transform_pivot_y": v["integer"]},
