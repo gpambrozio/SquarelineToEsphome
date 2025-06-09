@@ -663,7 +663,7 @@ def main():
 
     def process():
         data = json.loads(Path(path).read_text())
-        folder = os.path.dirname(path)
+        folder = os.path.abspath(os.path.dirname(path))
 
         # Create a map of object names to GUIDs
         create_object_map(data)
@@ -683,10 +683,17 @@ def main():
 
         img_dict = convert_all_images(folder, images)
 
+        # Convert image paths to relative paths
+        relative_to = None
+        if args.output:
+            relative_to = os.path.abspath(os.path.dirname(args.output))
+
         images_list = [
             {
                 "id": key,
-                "file": os.path.join(folder, value),
+                "file": os.path.relpath(os.path.join(folder, value), relative_to)
+                if relative_to
+                else os.path.join(folder, value),
                 "type": "RGB565",
                 "transparency": "alpha_channel",
             }
