@@ -294,8 +294,6 @@ def color_opa(color_id: str, opa_id: str, node: dict) -> dict:
     else:
         opa = 255  # Default opacity
 
-    if opa == 255:
-        return {color_id: color}
     return {color_id: color, opa_id: opa / 255.0}
 
 
