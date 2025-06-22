@@ -19,6 +19,26 @@ import pyperclip
 import yaml
 from PIL import Image
 
+# Custom class to represent ESPHome secrets
+class ESPHomeSecret:
+    def __init__(self, secret_name):
+        self.secret_name = secret_name
+
+# Custom representer for ESPHome secrets
+def secret_representer(dumper, data):
+    return dumper.represent_scalar('!secret', data.secret_name)
+
+# Register the representer
+yaml.add_representer(ESPHomeSecret, secret_representer)
+
+# Add custom constructor for !secret tags
+def secret_constructor(loader, node):
+    # Return an ESPHomeSecret object
+    secret_name = loader.construct_scalar(node)
+    return ESPHomeSecret(secret_name)
+
+yaml.SafeLoader.add_constructor('!secret', secret_constructor)
+
 # SquareLine object type → ESPHome YAML widget keyword
 TYPE_MAP = {
     # Basic widgets
@@ -490,6 +510,29 @@ def convert_widget(node: dict, images: dict) -> dict | None:
                 cfg[k] = v
         elif processed is not None:
             cfg[yaml_key] = processed
+
+    if yaml_root_key == "textarea":
+        # Special case for TEXTAREA: ensure text is always a string
+        text = cfg.get("text", "")
+        if text.startswith(">custom"):
+            # If it starts with >custom, it's a custom widget
+            # Parse every line after the first as a yaml line
+            # Replace yaml_root_key with the root of th yamls and
+            # then replace all properties of this node with the properties of the yaml
+            lines = text.split("\\n")
+            if len(lines) > 1:
+                yaml_text = "\n".join(lines[1:])
+                try:
+                    custom_cfg = yaml.safe_load(yaml_text)
+                    if isinstance(custom_cfg, dict) and len(custom_cfg.keys()) == 1:
+                        # Replace the root key with the widget type
+                        yaml_root_key = list(custom_cfg)[0]
+                        # Merge properties into cfg
+                        del cfg["text"]
+                        del cfg["placeholder"]
+                        cfg = deep_update(cfg, custom_cfg[yaml_root_key])
+                except yaml.YAMLError as e:
+                    print(f"Error parsing custom YAML in TEXTAREA: {e}")
 
     # Recursively process child widgets
     children_yaml = []
