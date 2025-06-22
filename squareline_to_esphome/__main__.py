@@ -55,6 +55,7 @@ TYPE_MAP = {
     "DROPDOWN": "dropdown",
     "KEYBOARD": "keyboard",
     "ROLLER": "roller",
+    "SCREEN": "screen",
     "SLIDER": "slider",
     "SWITCH": "switch",
     "SPINBOX": "spinbox",
@@ -552,21 +553,8 @@ def convert_widget(node: dict, images: dict) -> dict | None:
 
 def convert_page(screen_node: dict, images: dict) -> dict:
     """Convert a SCREEN object into an lvgl page entry"""
-    name_prop = get_prop(screen_node, "OBJECT/Name")
-    page_id = slugify(name_prop["strval"]) if name_prop else "page"
-
-    page_dict = {"id": page_id}
-
-    # Process widgets inside the page
-    widgets = []
-    for child in screen_node.get("children", []):
-        w = convert_widget(child, images)
-        if w:
-            widgets.append(w)
-    if widgets:
-        page_dict["widgets"] = widgets
-
-    return page_dict
+    page_dict = convert_widget(screen_node, images)
+    return page_dict["screen"]
 
 
 def convert_to_rgb565(image_path: str) -> str:
