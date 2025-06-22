@@ -156,7 +156,7 @@ object_map = {}
 
 def slugify(name: str) -> str:
     """make a YAML-friendly id: letters, digits, underscores only, lowercase"""
-    return re.sub(r"[^0-9A-Za-z_]", "_", name).lower()
+    return re.sub(r"[^0-9A-Za-z_]", "_", name)
 
 
 def slugify_image(name: str) -> str:
