@@ -88,6 +88,10 @@ STYLE_PROPERTY_MAP = {
         else v["strval"]
     },
     "_style/Border post": lambda v: {"border_post": v["strval"].lower() == "true"},
+    # Image styles
+    "_style/Image_reColor": lambda v: color_opa(
+        "image_recolor", "image_recolor_opa", v
+    ),
     # Text styles
     "_style/Text_Color": lambda v: color_opa("text_color", "text_opa", v),
     "_style/Text_Font": lambda v: {"text_font": v["strval"]},
