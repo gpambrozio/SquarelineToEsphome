@@ -200,7 +200,11 @@ def event_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
                 for grandchild in child["childs"]:
                     if grandchild["strtype"] == "CALL FUNCTION/Function_name":
                         script = grandchild["strval"]
-                        parameter = "tab" if yaml_root_key == "tabview" else "x"
+                        parameter = "x"
+                        if yaml_root_key == "tabview":
+                            parameter = "tab"
+                        if yaml_root_key == "label":
+                            parameter = "text"
                         handlers.append(
                             {
                                 "lambda": f"id({script})->execute({parameter});",
