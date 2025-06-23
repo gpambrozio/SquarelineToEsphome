@@ -391,6 +391,7 @@ PROP_MAP = {
     "OBJECT/Size": (None, size_parser),
     "OBJECT/Layout_type": (None, layout_parser),
     "TABPAGE/Layout_type": (None, layout_parser),
+    "TABPAGE/Scrollable": ("scrollable", lambda v, *args: v["strval"].lower() == "true"),
     # Styles
     "ARC/Style_main": (None, style_parser),
     "BAR/Style_main": (None, style_parser),
