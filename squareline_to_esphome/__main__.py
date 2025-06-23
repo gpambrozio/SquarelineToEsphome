@@ -416,6 +416,10 @@ PROP_MAP = {
     # Dropdown properties
     "DROPDOWN/Options": ("options", lambda v, *args: v["strval"].split("\\n")),
     # Arc properties
+    # A bit hacky as SqureLine does not have an `adjustable` property
+    # but they are so setting this to True for all ARCs
+    # is the only way to make them work in ESPHome.
+    "ARC/Arc": ("adjustable", lambda v, *args: True),
     "ARC/Range": (("min_value", "max_value"), lambda v, *args: v["intarray"]),
     "ARC/Value": ("value", lambda v, *args: int(v["integer"])),
     "ARC/Mode": ("mode", lambda v, *args: v["strval"].upper()),
@@ -423,6 +427,7 @@ PROP_MAP = {
         "rotation",
         lambda v, *args: int(v["integer"]) if "integer" in v else 0,
     ),
+    "ARC/Bg_angles": (("start_angle", "end_angle"), lambda v, *args: v["intarray"]),
     # Bar properties
     "BAR/Range": (("min_value", "max_value"), lambda v, *args: v["intarray"]),
     "BAR/Value": ("value", lambda v, *args: int(v["integer"])),
