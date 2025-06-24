@@ -24,12 +24,22 @@ class ESPHomeSecret:
     def __init__(self, secret_name):
         self.secret_name = secret_name
 
+# Custom class to represent ESPHome includes
+class ESPHomeInclude:
+    def __init__(self, include_path):
+        self.include_path = include_path
+
 # Custom representer for ESPHome secrets
 def secret_representer(dumper, data):
     return dumper.represent_scalar('!secret', data.secret_name)
 
-# Register the representer
+# Custom representer for ESPHome includes
+def include_representer(dumper, data):
+    return dumper.represent_scalar('!include', data.include_path)
+
+# Register the representers
 yaml.add_representer(ESPHomeSecret, secret_representer)
+yaml.add_representer(ESPHomeInclude, include_representer)
 
 # Add custom constructor for !secret tags
 def secret_constructor(loader, node):
@@ -37,7 +47,14 @@ def secret_constructor(loader, node):
     secret_name = loader.construct_scalar(node)
     return ESPHomeSecret(secret_name)
 
+# Add custom constructor for !include tags
+def include_constructor(loader, node):
+    # Return an ESPHomeInclude object
+    include_path = loader.construct_scalar(node)
+    return ESPHomeInclude(include_path)
+
 yaml.SafeLoader.add_constructor('!secret', secret_constructor)
+yaml.SafeLoader.add_constructor('!include', include_constructor)
 
 # SquareLine object type → ESPHome YAML widget keyword
 TYPE_MAP = {
