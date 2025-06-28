@@ -92,37 +92,19 @@ You can define custom ESPHome LVGL widgets that aren't directly supported by Squ
 2. **Set the text content** to start with `>custom` on the first line
 3. **Add YAML configuration** on subsequent lines defining your custom widget
 
-#### Example: Custom Button
+#### Example: Custom QR Code
 
 In SquareLine Studio, create a textarea with this content:
 ```
 >custom
-button:
-  text: "Custom Button"
-  width: 100
-  height: 50
-  checkable: true
-  on_click:
-    then:
-      - logger.log: "Custom button clicked!"
+qrcode:
+  text: !secret api_url
+  size: 150
+  light_color: 0xFFFFFF
+  dark_color: 0x000000
 ```
 
-This will be converted to a proper ESPHome button widget instead of a textarea.
-
-#### Example: Custom Slider
-
-```
->custom
-slider:
-  min_value: 0
-  max_value: 100
-  value: 50
-  on_value:
-    then:
-      - logger.log: 
-          format: "Slider value: %.1f"
-          args: ['x']
-```
+This will be converted to a proper ESPHome QR code widget instead of a textarea. Note that you can use `!secret` and `!include` directives in the YAML configuration.
 
 #### Custom Widget Requirements
 
