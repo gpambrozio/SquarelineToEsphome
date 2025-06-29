@@ -474,10 +474,10 @@ PROP_MAP = {
     "SLIDER/Mode": ("mode", lambda v, *args: v["strval"].upper()),
     # Roller properties
     "ROLLER/Options": ("options", lambda v, *args: v["strval"].split("\\n")),
-    "ROLLER/Selected": ("selected", lambda v, *args: int(v["integer"])),
+    "ROLLER/Selected": ("selected", lambda v, *args: int(v.get("integer", 0))),
     "ROLLER/Mode": ("mode", lambda v, *args: v["strval"].upper()),
     # Spinbox properties
-    "SPINBOX/Value": ("value", lambda v, *args: int(v["integer"])),
+    "SPINBOX/Value": ("value", lambda v, *args: int(v.get("integer", 0))),
     "SPINBOX/Range": (("min_value", "max_value"), lambda v, *args: v["intarray"]),
     # Switch properties
     "SWITCH/Anim_time": ("anim_time", lambda v, *args: v["strval"] + "ms"),
