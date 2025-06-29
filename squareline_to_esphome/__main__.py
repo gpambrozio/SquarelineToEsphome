@@ -474,18 +474,18 @@ PROP_MAP = {
     "SLIDER/Mode": ("mode", lambda v, *args: v["strval"].upper()),
     # Roller properties
     "ROLLER/Options": ("options", lambda v, *args: v["strval"].split("\\n")),
-    "ROLLER/Selected": ("selected", lambda v, *args: int(v.get("integer", 0))),
+    "ROLLER/Selected": ("selected_index", lambda v, *args: int(v.get("integer", 0))),
     "ROLLER/Mode": ("mode", lambda v, *args: v["strval"].upper()),
     # Spinbox properties
     "SPINBOX/Value": ("value", lambda v, *args: int(v.get("integer", 0))),
-    "SPINBOX/Range": (("min_value", "max_value"), lambda v, *args: v["intarray"]),
+    "SPINBOX/Range": (("range_from", "range_to"), lambda v, *args: v["intarray"]),
     # Switch properties
     "SWITCH/Anim_time": ("anim_time", lambda v, *args: v["strval"] + "ms"),
     # Textarea properties
     "TEXTAREA/One_line": ("one_line", lambda v, *args: v["strval"].lower() == "true"),
     "TEXTAREA/Password": ("password", lambda v, *args: v["strval"].lower() == "true"),
     "TEXTAREA/Text": ("text", lambda v, *args: v["strval"]),
-    "TEXTAREA/Placeholder": ("placeholder", lambda v, *args: v["strval"]),
+    "TEXTAREA/Placeholder": ("placeholder_text", lambda v, *args: v["strval"]),
     # Image properties
     "IMAGE/Asset": ("src", lambda v, *args: v["strval"]),
     "IMAGE/Pivot_x": ("pivot_x", lambda v, *args: int(v["integer"])),
