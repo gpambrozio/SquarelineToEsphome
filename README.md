@@ -82,6 +82,88 @@ button:
             text: "New Text"
 ```
 
+**3. CHANGE SCREEN Actions**
+Navigate between screens with optional fade animations:
+
+```yaml
+button:
+  - id: nav_button
+    on_click:
+      then:
+        - lvgl.page.show:
+            id: target_screen
+            animation: fade_in
+            time: 500ms
+```
+
+**4. Widget Value Actions**
+Increment and set values for interactive widgets:
+
+- `INCREMENT ARC/BAR/SLIDER` - Increments widget values with lambda expressions
+- `SLIDER_PROPERTY/BAR_PROPERTY/ROLLER_PROPERTY` - Sets widget properties with animation support
+
+```yaml
+button:
+  - id: increment_btn
+    on_click:
+      then:
+        - lvgl.slider.update:
+            id: my_slider
+            animated: true
+            value: !lambda "return float(10 + lv_slider_get_value(id(my_slider)));"
+```
+
+**5. Widget State and Property Actions**
+Modify widget states, flags, and properties:
+
+- `BASIC_PROPERTY` - Updates basic widget properties (position, size, etc.)
+- `SET OPACITY` - Changes widget opacity
+- `MODIFY FLAG/STATE` - Toggles widget flags and states
+
+```yaml
+button:
+  - id: hide_btn
+    on_click:
+      then:
+        - lvgl.widget.update:
+            id: target_widget
+            hidden: true
+            opa: 0.5
+```
+
+**6. Keyboard and Text Actions**
+Handle keyboard input and dynamic text updates:
+
+- `KEYBOARD SET TARGET` - Associates keyboard with textarea
+- `SET TEXT VALUE FROM ARC/SLIDER` - Updates text from widget values
+- `SET TEXT VALUE WHEN CHECKED` - Conditional text based on checkbox state
+
+```yaml
+checkbox:
+  - id: my_checkbox
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: status_label
+            text:
+              format: "%s"
+              args: ['x ? "ON" : "OFF"']
+```
+
+**7. Spinbox Actions**
+Control spinbox widgets:
+
+- `STEP SPINBOX` - Increment or decrement spinbox values
+
+```yaml
+button:
+  - id: increment_btn
+    on_click:
+      then:
+        - lvgl.spinbox.increment:
+            id: my_spinbox
+```
+
 ### Custom Widgets
 
 You can define custom ESPHome LVGL widgets that aren't directly supported by SquareLine Studio using a special textarea syntax.
