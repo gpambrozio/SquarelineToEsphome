@@ -11,6 +11,11 @@ dependencies = [
     "setuptools>=80.8.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+]
+
 [project.scripts]
 squareline-to-esphome = "squareline_to_esphome.__main__:main"
 
@@ -18,3 +23,18 @@ squareline-to-esphome = "squareline_to_esphome.__main__:main"
 [build-system]
 requires = ["setuptools==80.8.0",]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+]
+ignore = [
+    "E501",  # line too long, handled by formatter
+]
