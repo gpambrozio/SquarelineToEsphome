@@ -138,8 +138,6 @@ STYLE_PROPERTY_MAP = {
     "_style/Transform_Pivot_Y": lambda v: {"transform_pivot_y": v["integer"]},
 }
 
-object_map = {}
-
 
 def slugify(name: str) -> str:
     """make a YAML-friendly id: letters, digits, underscores only, lowercase"""
@@ -149,8 +147,6 @@ def slugify(name: str) -> str:
 def slugify_image(name: str) -> str:
     """make a YAML-friendly id: letters, digits, underscores only, lowercase"""
     return name.split("/")[-1].replace(".", "_").replace(" ", "_")
-
-
 
 
 def size_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
@@ -547,7 +543,6 @@ def create_object_map(data: dict) -> dict:
     Create a map of all objects with their Object/Name as key and their guid as value.
     This allows for easier referencing of objects by name instead of GUID.
     """
-    global object_map
     object_map = {}
 
     def process_node(node):
@@ -572,6 +567,7 @@ def create_object_map(data: dict) -> dict:
 
     # Start processing from the root
     process_node(data["root"])
+    return object_map
 
 
 def monitor_input_file(path, process_func):
@@ -637,7 +633,7 @@ def main():
         folder = os.path.abspath(os.path.dirname(path))
 
         # Create a map of object names to GUIDs
-        create_object_map(data)
+        object_map = create_object_map(data)
 
         # Walk root → pages (SCREEN objects)
         pages = []
