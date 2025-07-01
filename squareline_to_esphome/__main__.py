@@ -19,8 +19,6 @@ import pyperclip
 import yaml
 from PIL import Image
 
-import squareline_to_esphome.action_handlers as action_handlers
-
 from .action_handlers import event_parser
 
 # SquareLine object type → ESPHome YAML widget keyword
@@ -409,7 +407,7 @@ def deep_update(original, update_with):
     return original
 
 
-def convert_widget(node: dict, images: dict) -> dict | None:
+def convert_widget(node: dict, images: dict, object_map: dict) -> dict | None:
     """Return YAML snippet (dict) for a SquareLine widget node with coordinate conversion"""
     sl_type = node.get("saved_objtypeKey")
     yaml_root_key = TYPE_MAP.get(sl_type)
@@ -424,7 +422,11 @@ def convert_widget(node: dict, images: dict) -> dict | None:
         if prop is None:
             continue
 
-        processed = func(prop, yaml_root_key, images)
+        # Special case for event_parser which needs object_map parameter
+        if func == event_parser:
+            processed = func(prop, yaml_root_key, images, object_map)
+        else:
+            processed = func(prop, yaml_root_key, images)
 
         if sl_key == "IMAGE/Asset":
             id = slugify_image(processed)
@@ -465,7 +467,7 @@ def convert_widget(node: dict, images: dict) -> dict | None:
     # Recursively process child widgets
     children_yaml = []
     for child in node.get("children", []):
-        child_widget = convert_widget(child, images)
+        child_widget = convert_widget(child, images, object_map)
         if child_widget:
             children_yaml.append(child_widget)
 
@@ -478,9 +480,9 @@ def convert_widget(node: dict, images: dict) -> dict | None:
     return {yaml_root_key: cfg}
 
 
-def convert_page(screen_node: dict, images: dict) -> dict:
+def convert_page(screen_node: dict, images: dict, object_map: dict) -> dict:
     """Convert a SCREEN object into an lvgl page entry"""
-    page_dict = convert_widget(screen_node, images)
+    page_dict = convert_widget(screen_node, images, object_map)
     return page_dict["screen"]
 
 
@@ -547,9 +549,6 @@ def create_object_map(data: dict) -> dict:
     """
     global object_map
     object_map = {}
-
-    # Share object_map with action_handlers module
-    action_handlers.object_map = object_map
 
     def process_node(node):
         if isinstance(node, dict):
@@ -647,7 +646,7 @@ def main():
         def recurse(node):
             if isinstance(node, dict):
                 if node.get("saved_objtypeKey") == "SCREEN":
-                    pages.append(convert_page(node, images))
+                    pages.append(convert_page(node, images, object_map))
                 for child in node.get("children", []):
                     recurse(child)
 
