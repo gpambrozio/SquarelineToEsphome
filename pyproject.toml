@@ -5,15 +5,16 @@ description = "SquarelineToEsphome is a tool that converts UI projects created w
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "pillow==11.2.1",
-    "pyperclip==1.9.0",
-    "pyyaml==6.0.2",
+    "pillow>=10.4.0",
+    "pyperclip>=1.9.0",
+    "pyyaml>=6.0.1",
     "setuptools>=80.8.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.1.0",
+    "pytest>=8.0.0",
 ]
 
 [project.scripts]
@@ -37,4 +38,20 @@ select = [
 ]
 ignore = [
     "E501",  # line too long, handled by formatter
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "esphome>=2024.11.0",
 ]
