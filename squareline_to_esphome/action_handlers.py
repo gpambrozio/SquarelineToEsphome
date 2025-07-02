@@ -338,7 +338,7 @@ class RollerPropertyHandler(ActionHandler):
             "lvgl.roller.update": {
                 "id": object_map[data["target_id"]],
                 "animated": data["property"] == "Value_with_anim",
-                "selected_text": data["value"],
+                "selected_index": int(data["value"]),
             }
         }
 
