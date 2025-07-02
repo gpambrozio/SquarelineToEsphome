@@ -182,3 +182,4 @@ cython_debug/
 # SquareLine test files
 tests/*/backup/
 tests/*/cache/
+tests/**/*_RGB565.png
