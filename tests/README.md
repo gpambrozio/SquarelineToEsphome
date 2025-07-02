@@ -24,9 +24,11 @@ uv run pytest tests/test_conversion.py -v
 - `test_conversion.py` - Main conversion functionality tests
 - `test_yaml_validation.py` - YAML output validation tests
 - `test_images.py` - Image processing and RGB565 conversion tests
+- `test_esphome_compilation.py` - ESPHome compilation validation tests
 - `conftest.py` - Shared test fixtures
 - `utils.py` - Test utility functions
 - `projects/` - Directory containing SquareLine test projects
+- `base.yaml` - Base ESPHome configuration for compilation testing
 
 ## Adding New Test Projects
 
@@ -75,6 +77,16 @@ tests/projects/my_new_project/
 - Error handling for invalid images
 - Tests on real project assets
 
+### ESPHome Compilation Tests (`test_esphome_compilation.py`)
+- Tests that generated YAML compiles successfully with ESPHome
+- Validates YAML syntax compatibility with ESPHome parser
+- Uses `base.yaml` configuration with proper display/touchscreen setup
+- Generates `base_lgvl.yaml` and tests compilation with `esphome config`
+- Automatically cleans up generated files after each test
+- Distinguishes between YAML syntax errors and configuration errors
+- **Requires ESPHome**: Install with `pip install esphome` to enable these tests
+- Tests are automatically skipped if ESPHome is not available
+
 ## Test Utilities (`utils.py`)
 
 ### Key Functions
@@ -96,6 +108,7 @@ The test suite covers:
 - ✅ Main conversion functionality
 - ✅ YAML output validation and structure
 - ✅ Image processing (RGB565 conversion)
+- ✅ ESPHome compilation validation
 - ✅ Error handling and edge cases
 - ✅ Multiple output formats
 - ✅ Unicode content handling
@@ -108,6 +121,7 @@ Tests are designed to work in CI environments:
 - Temporary file cleanup
 - Cross-platform compatibility
 - Deterministic test execution
+- ESPHome compilation tests are optional (skipped if not available)
 
 ## Troubleshooting
 
@@ -122,3 +136,5 @@ Tests are designed to work in CI environments:
 2. **Missing Test Projects**: Ensure your project has a `.spj` file in the project directory.
 
 3. **Image Conversion Failures**: Check that your images are valid and supported formats (PNG, JPG, etc.).
+
+4. **ESPHome Compilation Tests Skipped**: Install ESPHome with `pip install esphome` if you want to run the compilation validation tests. These tests are optional and will be skipped if ESPHome is not available.

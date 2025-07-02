@@ -1,0 +1,54 @@
+esphome:
+  name: test-project
+  platformio_options:
+    upload_speed: 921600
+    board_build.flash_mode: dio
+    board_build.f_flash: 80000000L
+    board_build.f_cpu: 240000000L
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+packages:
+  lgvl: !include base_lgvl.yaml
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+spi:
+  - type: quad
+    clk_pin: 47
+    data_pins: [21, 48, 40, 39]
+
+i2c:
+  - sda: 4
+    scl: 8
+
+touchscreen:
+  - platform: axs15231
+    id: my_touchscreen
+
+display:
+  - id: main_display
+    platform: qspi_dbi
+    dimensions:
+      height: 480
+      width: 320
+    model: CUSTOM
+    data_rate: 40MHz
+    cs_pin:
+      number: 45
+      ignore_strapping_warning: true
+    draw_from_origin: true
+    update_interval: never
+    auto_clear_enabled: false
