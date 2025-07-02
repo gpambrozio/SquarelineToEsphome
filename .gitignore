@@ -180,6 +180,6 @@ cython_debug/
 .claude/*.local.*
 
 # SquareLine test files
-tests/*/backup/
-tests/*/cache/
+tests/**/backup/
+tests/**/cache/
 tests/**/*_RGB565.png
