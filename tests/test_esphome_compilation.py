@@ -26,9 +26,10 @@ def esphome_available():
 
 
 # Skip all tests in this module if ESPHome is not available
+# Note: ESPHome is now included as a dev dependency, so these tests should always run
 pytestmark = pytest.mark.skipif(
     not esphome_available(),
-    reason="ESPHome not available - install with 'pip install esphome' to run compilation tests"
+    reason="ESPHome not available - run 'uv sync' to install dev dependencies including ESPHome"
 )
 
 
@@ -109,7 +110,11 @@ wifi_password: "test_password"
                         "unknown component",
                         "pin is already used",
                         "missing required",
-                        "invalid configuration"
+                        "invalid configuration",
+                        "first character in id cannot be a digit",
+                        "invalid font",
+                        "invalid image",
+                        "invalid id"
                     ]
 
                     is_config_error = any(indicator in output_text for indicator in config_error_indicators)

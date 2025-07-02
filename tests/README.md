@@ -84,8 +84,8 @@ tests/projects/my_new_project/
 - Generates `base_lgvl.yaml` and tests compilation with `esphome config`
 - Automatically cleans up generated files after each test
 - Distinguishes between YAML syntax errors and configuration errors
-- **Requires ESPHome**: Install with `pip install esphome` to enable these tests
-- Tests are automatically skipped if ESPHome is not available
+- **ESPHome included**: ESPHome is now included as a dev dependency via uv
+- Tests run automatically when dev dependencies are installed with `uv sync`
 
 ## Test Utilities (`utils.py`)
 
@@ -121,7 +121,7 @@ Tests are designed to work in CI environments:
 - Temporary file cleanup
 - Cross-platform compatibility
 - Deterministic test execution
-- ESPHome compilation tests are optional (skipped if not available)
+- ESPHome included as dev dependency for complete validation
 
 ## Troubleshooting
 
@@ -137,4 +137,4 @@ Tests are designed to work in CI environments:
 
 3. **Image Conversion Failures**: Check that your images are valid and supported formats (PNG, JPG, etc.).
 
-4. **ESPHome Compilation Tests Skipped**: Install ESPHome with `pip install esphome` if you want to run the compilation validation tests. These tests are optional and will be skipped if ESPHome is not available.
+4. **ESPHome Compilation Tests Skipped**: Run `uv sync` to install all dev dependencies including ESPHome. The compilation validation tests are now included by default.
