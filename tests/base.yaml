@@ -21,6 +21,11 @@ esp32:
 packages:
   lgvl: !include base_lgvl.yaml
 
+script:
+  - id: tab_changed
+    mode: restart
+    then:
+
 psram:
   mode: octal
   speed: 80MHz
