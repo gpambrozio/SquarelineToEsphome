@@ -1,0 +1,16 @@
+{
+  "codename": "Small_Font",
+  "ttf_path": "/assets/fonts/Montserrat-SemiBold.ttf",
+  "bin_path": "/assets/fonts\\ui_font_Small_Font.bin",
+  "c_path": "/assets/fonts\\ui_font_Small_Font.c",
+  "cfg_path": "/assets/fonts\\ui_font_Small_Font.fcfg",
+  "size": 16,
+  "bpp": 4,
+  "letters": 3,
+  "ranges": [
+    "0x20-0xff"
+  ],
+  "symbols": "",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}
