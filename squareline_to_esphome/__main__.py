@@ -456,6 +456,8 @@ def convert_widget(node: dict, images: dict, object_map: dict) -> dict | None:
                         del cfg["text"]
                         if "placeholder" in cfg:
                             del cfg["placeholder"]
+                        if "placeholder_text" in cfg:
+                            del cfg["placeholder_text"]
                         cfg = deep_update(cfg, custom_cfg[yaml_root_key])
                 except yaml.YAMLError as e:
                     print(f"Error parsing custom YAML in TEXTAREA: {e}")
