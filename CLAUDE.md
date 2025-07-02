@@ -26,6 +26,9 @@ uv sync
 ### Linting
 Make sure to use `ruff` to lint python files after every change.
 
+### Tests
+Tests are included in the `tests` folder and should run before commiting anything.
+
 ## Architecture
 
 ### Core Components
