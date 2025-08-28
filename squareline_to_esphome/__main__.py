@@ -19,7 +19,7 @@ import pyperclip
 import yaml
 from PIL import Image
 
-from .action_handlers import event_parser
+from squareline_to_esphome.action_handlers import event_parser
 
 # SquareLine object type → ESPHome YAML widget keyword
 TYPE_MAP = {
