@@ -295,9 +295,18 @@ PROP_MAP = {
         lambda v, *args: {"state": {"checked": v["strval"].lower() == "true"}},
     ),
     "OBJECT/Checkable": ("checkable", lambda v, *args: v["strval"].lower() == "true"),
-    "OBJECT/Edited": ("edited", lambda v, *args: v["strval"].lower() == "true"),
-    "OBJECT/Focused": ("focused", lambda v, *args: v["strval"].lower() == "true"),
-    "OBJECT/Pressed": ("pressed", lambda v, *args: v["strval"].lower() == "true"),
+    "OBJECT/Edited": (
+         "edited",
+         lambda v, *args: {"state": {"edited": v["strval"].lower() == "true"}},
+     ),
+     "OBJECT/Focused": (
+         "focused",
+         lambda v, *args: {"state": {"focused": v["strval"].lower() == "true"}},
+     ),
+     "OBJECT/Pressed": (
+         "pressed",
+         lambda v, *args: {"state": {"pressed": v["strval"].lower() == "true"}},
+     ),
     "OBJECT/Scrollable": ("scrollable", lambda v, *args: v["strval"].lower() == "true"),
     "OBJECT/Size": (None, size_parser),
     "OBJECT/Layout_type": (None, layout_parser),
