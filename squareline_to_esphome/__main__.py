@@ -370,6 +370,7 @@ PROP_MAP = {
     # Spinbox properties
     "SPINBOX/Value": ("value", lambda v, *args: int(v.get("integer", 0))),
     "SPINBOX/Range": (("range_from", "range_to"), lambda v, *args: v["intarray"]),
+    "SPINBOX/Digit_format": (("digits", "decimal_places"), lambda v, *args: [v["intarray"][0], v["intarray"][1]]),
     # Switch properties
     "SWITCH/Anim_time": ("anim_time", lambda v, *args: v["strval"] + "ms"),
     # Textarea properties
