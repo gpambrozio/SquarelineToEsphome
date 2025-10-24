@@ -348,6 +348,7 @@ PROP_MAP = {
     "SWITCH/Style_main": (None, style_parser),
     "TABPAGE/Style_main": (None, style_parser),
     "TABVIEW/Style_main": (None, style_parser),
+    "TEXTAREA/Style_cursor": (None, cursor_style_parser),
     "TEXTAREA/Style_main": (None, style_parser),
     # Label properties
     "LABEL/Text": ("text", lambda v, *args: v["strval"]),
