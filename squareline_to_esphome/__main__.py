@@ -243,15 +243,21 @@ def cursor_style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
     return base_style_parser(node, "cursor", yaml_root_key, images)
 
 
-def base_style_parser(node: dict, style_key: str, yaml_root_key: str, images: dict) -> dict:
+def base_style_parser(
+    node: dict, style_key: str, yaml_root_key: str, images: dict
+) -> dict:
     """Parse style properties from a node and return a dictionary of style properties"""
     children = node.get("childs", [])
-    result = {
-        "pad_left": 0,
-        "pad_right": 0,
-        "pad_top": 0,
-        "pad_bottom": 0,
-    } if style_key is None else {}
+    result = (
+        {
+            "pad_left": 0,
+            "pad_right": 0,
+            "pad_top": 0,
+            "pad_bottom": 0,
+        }
+        if style_key is None
+        else {}
+    )
 
     for child in children:
         if child["strtype"] == "_style/StyleState":
@@ -313,17 +319,17 @@ PROP_MAP = {
     ),
     "OBJECT/Checkable": ("checkable", lambda v, *args: v["strval"].lower() == "true"),
     "OBJECT/Edited": (
-         "edited",
-         lambda v, *args: {"state": {"edited": v["strval"].lower() == "true"}},
-     ),
-     "OBJECT/Focused": (
-         "focused",
-         lambda v, *args: {"state": {"focused": v["strval"].lower() == "true"}},
-     ),
-     "OBJECT/Pressed": (
-         "pressed",
-         lambda v, *args: {"state": {"pressed": v["strval"].lower() == "true"}},
-     ),
+        "edited",
+        lambda v, *args: {"state": {"edited": v["strval"].lower() == "true"}},
+    ),
+    "OBJECT/Focused": (
+        "focused",
+        lambda v, *args: {"state": {"focused": v["strval"].lower() == "true"}},
+    ),
+    "OBJECT/Pressed": (
+        "pressed",
+        lambda v, *args: {"state": {"pressed": v["strval"].lower() == "true"}},
+    ),
     "OBJECT/Scrollable": ("scrollable", lambda v, *args: v["strval"].lower() == "true"),
     "OBJECT/Size": (None, size_parser),
     "OBJECT/Layout_type": (None, layout_parser),
@@ -389,7 +395,10 @@ PROP_MAP = {
     # Spinbox properties
     "SPINBOX/Value": ("value", lambda v, *args: int(v.get("integer", 0))),
     "SPINBOX/Range": (("range_from", "range_to"), lambda v, *args: v["intarray"]),
-    "SPINBOX/Digit_format": (("digits", "decimal_places"), lambda v, *args: [v["intarray"][0], v["intarray"][1]]),
+    "SPINBOX/Digit_format": (
+        ("digits", "decimal_places"),
+        lambda v, *args: [v["intarray"][0], v["intarray"][1]],
+    ),
     # Switch properties
     "SWITCH/Anim_time": ("anim_time", lambda v, *args: v["strval"] + "ms"),
     # Textarea properties
