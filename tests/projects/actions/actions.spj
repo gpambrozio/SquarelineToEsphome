@@ -2254,7 +2254,27 @@
                       },
                       {
                         "part": "lv.PART.MAIN",
-                        "childs": [],
+                        "childs": [
+                          {
+                            "nid": 10000,
+                            "strtype": "_style/StyleState",
+                            "strval": "DEFAULT",
+                            "childs": [
+                              {
+                                "nid": 10520,
+                                "strtype": "_style/Bg_Color",
+                                "intarray": [
+                                  255,
+                                  255,
+                                  255,
+                                  255
+                                ],
+                                "InheritedType": 7
+                              }
+                            ],
+                            "InheritedType": 1
+                          }
+                        ],
                         "nid": 1050,
                         "strtype": "SPINBOX/Style_main",
                         "strval": "lv.PART.MAIN, Rectangle, Pad, Text, Transform",
@@ -2262,7 +2282,27 @@
                       },
                       {
                         "part": "lv.PART.CURSOR",
-                        "childs": [],
+                        "childs": [
+                          {
+                            "nid": 10000,
+                            "strtype": "_style/StyleState",
+                            "strval": "DEFAULT",
+                            "childs": [
+                              {
+                                "nid": 10710,
+                                "strtype": "_style/Border_Color",
+                                "intarray": [
+                                  0,
+                                  0,
+                                  0,
+                                  255
+                                ],
+                                "InheritedType": 7
+                              }
+                            ],
+                            "InheritedType": 1
+                          }
+                        ],
                         "nid": 1060,
                         "strtype": "SPINBOX/Style_cursor",
                         "strval": "lv.PART.CURSOR, Rectangle, Text",
@@ -3148,7 +3188,7 @@
     "description": "",
     "board": "ESP-BOX",
     "board_version": "2.0.0",
-    "editor_version": "1.5.3",
+    "editor_version": "1.5.4",
     "image": "",
     "export_temp_image": false,
     "force_export_images": false,
@@ -3159,24 +3199,14 @@
     "theme_dark": false,
     "theme_color1": 5,
     "theme_color2": 0,
-    "uiExportFolderPath": "",
-    "projectExportFolderPath": "",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 158,
+    "backup_cnt": 165,
     "autosave_cnt": 0,
     "group_color_cnt": 0,
     "lvgl_version": "9.1.0",
     "callfuncsexport": "C_FILE",
     "imageexport": "SOURCE",
     "lvgl_include_path": "",
-    "drive_stdio": "-",
-    "drive_stdio_path": "",
-    "drive_posix": "-",
-    "drive_posix_path": "",
-    "drive_win32": "-",
-    "drive_win32_path": "",
-    "drive_fatfs": "-",
-    "drive_fatfs_path": "",
     "naming": "Name",
     "naming_force_lowercase": false,
     "naming_add_subcomponent": false,

@@ -235,13 +235,30 @@ def color_opa(color_id: str, opa_id: str, node: dict) -> dict:
 
 def style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
     """Parse style properties from a node and return a dictionary of style properties"""
+    return base_style_parser(node, None, yaml_root_key, images)
+
+
+def cursor_style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
+    """Parse cursor properties from a node and return a dictionary of cursor properties"""
+    return base_style_parser(node, "cursor", yaml_root_key, images)
+
+
+def base_style_parser(
+    node: dict, style_key: str, yaml_root_key: str, images: dict
+) -> dict:
+    """Parse style properties from a node and return a dictionary of style properties"""
     children = node.get("childs", [])
-    result = {
-        "pad_left": 0,
-        "pad_right": 0,
-        "pad_top": 0,
-        "pad_bottom": 0,
-    }
+    result = (
+        {
+            "pad_left": 0,
+            "pad_right": 0,
+            "pad_top": 0,
+            "pad_bottom": 0,
+        }
+        if style_key is None
+        else {}
+    )
+
     for child in children:
         if child["strtype"] == "_style/StyleState":
             state = child["strval"].lower()  # Get state (DEFAULT, PRESSED, etc.)
@@ -277,7 +294,13 @@ def style_parser(node: dict, yaml_root_key: str, images: dict) -> dict:
                     # Other states go under their state name
                     result[state] = state_styles
 
-    return result
+    if style_key is None:
+        return result
+
+    if result:
+        return {style_key: result}
+
+    return None
 
 
 # Individual SquareLine property → YAML key + optional post-processing lambda
@@ -296,17 +319,17 @@ PROP_MAP = {
     ),
     "OBJECT/Checkable": ("checkable", lambda v, *args: v["strval"].lower() == "true"),
     "OBJECT/Edited": (
-         "edited",
-         lambda v, *args: {"state": {"edited": v["strval"].lower() == "true"}},
-     ),
-     "OBJECT/Focused": (
-         "focused",
-         lambda v, *args: {"state": {"focused": v["strval"].lower() == "true"}},
-     ),
-     "OBJECT/Pressed": (
-         "pressed",
-         lambda v, *args: {"state": {"pressed": v["strval"].lower() == "true"}},
-     ),
+        "edited",
+        lambda v, *args: {"state": {"edited": v["strval"].lower() == "true"}},
+    ),
+    "OBJECT/Focused": (
+        "focused",
+        lambda v, *args: {"state": {"focused": v["strval"].lower() == "true"}},
+    ),
+    "OBJECT/Pressed": (
+        "pressed",
+        lambda v, *args: {"state": {"pressed": v["strval"].lower() == "true"}},
+    ),
     "OBJECT/Scrollable": ("scrollable", lambda v, *args: v["strval"].lower() == "true"),
     "OBJECT/Size": (None, size_parser),
     "OBJECT/Layout_type": (None, layout_parser),
@@ -326,10 +349,12 @@ PROP_MAP = {
     "ROLLER/Style_main": (None, style_parser),
     "SCREEN/Style_main": (None, style_parser),
     "SLIDER/Style_main": (None, style_parser),
+    "SPINBOX/Style_cursor": (None, cursor_style_parser),
     "SPINBOX/Style_main": (None, style_parser),
     "SWITCH/Style_main": (None, style_parser),
     "TABPAGE/Style_main": (None, style_parser),
     "TABVIEW/Style_main": (None, style_parser),
+    "TEXTAREA/Style_cursor": (None, cursor_style_parser),
     "TEXTAREA/Style_main": (None, style_parser),
     # Label properties
     "LABEL/Text": ("text", lambda v, *args: v["strval"]),
@@ -370,6 +395,10 @@ PROP_MAP = {
     # Spinbox properties
     "SPINBOX/Value": ("value", lambda v, *args: int(v.get("integer", 0))),
     "SPINBOX/Range": (("range_from", "range_to"), lambda v, *args: v["intarray"]),
+    "SPINBOX/Digit_format": (
+        ("digits", "decimal_places"),
+        lambda v, *args: [v["intarray"][0], v["intarray"][1]],
+    ),
     # Switch properties
     "SWITCH/Anim_time": ("anim_time", lambda v, *args: v["strval"] + "ms"),
     # Textarea properties

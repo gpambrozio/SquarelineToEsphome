@@ -31,7 +31,9 @@ class ActionHandler(ABC):
     """Abstract base class for SquareLine action handlers."""
 
     @abstractmethod
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
         """
         Handle a SquareLine action and return ESPHome YAML configuration.
 
@@ -46,7 +48,9 @@ class ActionHandler(ABC):
         pass
 
 
-def extract_child_values(child: Dict[str, Any], field_mappings: Dict[str, str]) -> Dict[str, Any]:
+def extract_child_values(
+    child: Dict[str, Any], field_mappings: Dict[str, str]
+) -> Dict[str, Any]:
     """
     Extract values from child nodes based on field mappings.
 
@@ -77,10 +81,12 @@ def validate_required_fields(data: Dict[str, Any], required_fields: List[str]) -
 class CallFunctionHandler(ActionHandler):
     """Handler for CALL FUNCTION actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "function_name": "CALL FUNCTION/Function_name"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child, {"function_name": "CALL FUNCTION/Function_name"}
+        )
 
         if not data.get("function_name"):
             return None
@@ -98,12 +104,17 @@ class CallFunctionHandler(ActionHandler):
 class LabelPropertyHandler(ActionHandler):
     """Handler for LABEL_PROPERTY actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "LABEL_PROPERTY/Target",
-            "property": "LABEL_PROPERTY/Property",
-            "value": "LABEL_PROPERTY/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "LABEL_PROPERTY/Target",
+                "property": "LABEL_PROPERTY/Property",
+                "value": "LABEL_PROPERTY/Value",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "property", "value"]):
             return None
@@ -122,12 +133,17 @@ class LabelPropertyHandler(ActionHandler):
 class ChangeScreenHandler(ActionHandler):
     """Handler for CHANGE SCREEN actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "screen_id": "CHANGE SCREEN/Screen_to",
-            "fade_mode": "CHANGE SCREEN/Fade_mode",
-            "speed": "CHANGE SCREEN/Speed"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "screen_id": "CHANGE SCREEN/Screen_to",
+                "fade_mode": "CHANGE SCREEN/Fade_mode",
+                "speed": "CHANGE SCREEN/Speed",
+            },
+        )
 
         if not data.get("screen_id") or data["screen_id"] not in object_map:
             return None
@@ -147,11 +163,12 @@ class ChangeScreenHandler(ActionHandler):
 class IncrementArcHandler(ActionHandler):
     """Handler for INCREMENT ARC actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "INCREMENT ARC/Target",
-            "value": "INCREMENT ARC/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child, {"target_id": "INCREMENT ARC/Target", "value": "INCREMENT ARC/Value"}
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -171,12 +188,17 @@ class IncrementArcHandler(ActionHandler):
 class IncrementBarHandler(ActionHandler):
     """Handler for INCREMENT BAR actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "INCREMENT BAR/Target",
-            "value": "INCREMENT BAR/Value",
-            "animate": "INCREMENT BAR/Animate"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "INCREMENT BAR/Target",
+                "value": "INCREMENT BAR/Value",
+                "animate": "INCREMENT BAR/Animate",
+            },
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -197,12 +219,17 @@ class IncrementBarHandler(ActionHandler):
 class IncrementSliderHandler(ActionHandler):
     """Handler for INCREMENT SLIDER actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "INCREMENT SLIDER/Target",
-            "value": "INCREMENT SLIDER/Value",
-            "animate": "INCREMENT SLIDER/Animate"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "INCREMENT SLIDER/Target",
+                "value": "INCREMENT SLIDER/Value",
+                "animate": "INCREMENT SLIDER/Animate",
+            },
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -223,12 +250,17 @@ class IncrementSliderHandler(ActionHandler):
 class BasicPropertyHandler(ActionHandler):
     """Handler for BASIC_PROPERTY actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "BASIC_PROPERTY/Target",
-            "property": "BASIC_PROPERTY/Property",
-            "value": "BASIC_PROPERTY/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "BASIC_PROPERTY/Target",
+                "property": "BASIC_PROPERTY/Property",
+                "value": "BASIC_PROPERTY/Value",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "property"]):
             return None
@@ -252,11 +284,12 @@ class BasicPropertyHandler(ActionHandler):
 class SetOpacityHandler(ActionHandler):
     """Handler for SET OPACITY actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "SET OPACITY/Target",
-            "value": "SET OPACITY/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child, {"target_id": "SET OPACITY/Target", "value": "SET OPACITY/Value"}
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -274,12 +307,17 @@ class SetOpacityHandler(ActionHandler):
 class SliderPropertyHandler(ActionHandler):
     """Handler for SLIDER_PROPERTY actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "SLIDER_PROPERTY/Target",
-            "property": "SLIDER_PROPERTY/Property",
-            "value": "SLIDER_PROPERTY/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "SLIDER_PROPERTY/Target",
+                "property": "SLIDER_PROPERTY/Property",
+                "value": "SLIDER_PROPERTY/Value",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "property"]):
             return None
@@ -298,12 +336,17 @@ class SliderPropertyHandler(ActionHandler):
 class BarPropertyHandler(ActionHandler):
     """Handler for BAR_PROPERTY actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "BAR_PROPERTY/Target",
-            "property": "BAR_PROPERTY/Property",
-            "value": "BAR_PROPERTY/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "BAR_PROPERTY/Target",
+                "property": "BAR_PROPERTY/Property",
+                "value": "BAR_PROPERTY/Value",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "property"]):
             return None
@@ -322,12 +365,17 @@ class BarPropertyHandler(ActionHandler):
 class RollerPropertyHandler(ActionHandler):
     """Handler for ROLLER_PROPERTY actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "ROLLER_PROPERTY/Target",
-            "property": "ROLLER_PROPERTY/Property",
-            "value": "ROLLER_PROPERTY/Value"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "ROLLER_PROPERTY/Target",
+                "property": "ROLLER_PROPERTY/Property",
+                "value": "ROLLER_PROPERTY/Value",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "property"]):
             return None
@@ -346,11 +394,13 @@ class RollerPropertyHandler(ActionHandler):
 class StepSpinboxHandler(ActionHandler):
     """Handler for STEP SPINBOX actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "STEP SPINBOX/Target",
-            "direction": "STEP SPINBOX/Direction"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {"target_id": "STEP SPINBOX/Target", "direction": "STEP SPINBOX/Direction"},
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -368,12 +418,17 @@ class StepSpinboxHandler(ActionHandler):
 class ModifyFlagHandler(ActionHandler):
     """Handler for MODIFY FLAG actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "MODIFY FLAG/Object",
-            "flag": "MODIFY FLAG/Flag",
-            "action": "MODIFY FLAG/Action"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "MODIFY FLAG/Object",
+                "flag": "MODIFY FLAG/Flag",
+                "action": "MODIFY FLAG/Action",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "flag", "action"]):
             return None
@@ -399,12 +454,17 @@ class ModifyFlagHandler(ActionHandler):
 class ModifyStateHandler(ActionHandler):
     """Handler for MODIFY STATE actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "MODIFY STATE/Object",
-            "state": "MODIFY STATE/State",
-            "action": "MODIFY STATE/Action"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "MODIFY STATE/Object",
+                "state": "MODIFY STATE/State",
+                "action": "MODIFY STATE/Action",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "state", "action"]):
             return None
@@ -434,16 +494,23 @@ class ModifyStateHandler(ActionHandler):
 class KeyboardSetTargetHandler(ActionHandler):
     """Handler for KEYBOARD SET TARGET actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "keyboard_id": "KEYBOARD SET TARGET/Keyboard",
-            "textarea_id": "KEYBOARD SET TARGET/TextArea"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "keyboard_id": "KEYBOARD SET TARGET/Keyboard",
+                "textarea_id": "KEYBOARD SET TARGET/TextArea",
+            },
+        )
 
         if not validate_required_fields(data, ["keyboard_id", "textarea_id"]):
             return None
-        if (data["keyboard_id"] not in object_map or
-            data["textarea_id"] not in object_map):
+        if (
+            data["keyboard_id"] not in object_map
+            or data["textarea_id"] not in object_map
+        ):
             return None
 
         return {
@@ -457,12 +524,17 @@ class KeyboardSetTargetHandler(ActionHandler):
 class SetTextValueFromArcHandler(ActionHandler):
     """Handler for SET TEXT VALUE FROM ARC actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "SET TEXT VALUE FROM ARC/Target",
-            "prefix": "SET TEXT VALUE FROM ARC/Prefix",
-            "postfix": "SET TEXT VALUE FROM ARC/Postfix"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "SET TEXT VALUE FROM ARC/Target",
+                "prefix": "SET TEXT VALUE FROM ARC/Prefix",
+                "postfix": "SET TEXT VALUE FROM ARC/Postfix",
+            },
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -484,12 +556,17 @@ class SetTextValueFromArcHandler(ActionHandler):
 class SetTextValueFromSliderHandler(ActionHandler):
     """Handler for SET TEXT VALUE FROM SLIDER actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "SET TEXT VALUE FROM SLIDER/Target",
-            "prefix": "SET TEXT VALUE FROM SLIDER/Prefix",
-            "postfix": "SET TEXT VALUE FROM SLIDER/Postfix"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "SET TEXT VALUE FROM SLIDER/Target",
+                "prefix": "SET TEXT VALUE FROM SLIDER/Prefix",
+                "postfix": "SET TEXT VALUE FROM SLIDER/Postfix",
+            },
+        )
 
         if not data.get("target_id") or data["target_id"] not in object_map:
             return None
@@ -511,12 +588,17 @@ class SetTextValueFromSliderHandler(ActionHandler):
 class SetTextValueWhenCheckedHandler(ActionHandler):
     """Handler for SET TEXT VALUE WHEN CHECKED actions."""
 
-    def handle(self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]) -> Optional[Dict[str, Any]]:
-        data = extract_child_values(child, {
-            "target_id": "SET TEXT VALUE WHEN CHECKED/Target",
-            "on_text": "SET TEXT VALUE WHEN CHECKED/On_text",
-            "off_text": "SET TEXT VALUE WHEN CHECKED/Off_text"
-        })
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "SET TEXT VALUE WHEN CHECKED/Target",
+                "on_text": "SET TEXT VALUE WHEN CHECKED/On_text",
+                "off_text": "SET TEXT VALUE WHEN CHECKED/Off_text",
+            },
+        )
 
         if not validate_required_fields(data, ["target_id", "on_text", "off_text"]):
             return None
@@ -557,7 +639,12 @@ ACTION_HANDLERS: Dict[str, ActionHandler] = {
 }
 
 
-def event_parser(node: Dict[str, Any], yaml_root_key: str, images: Dict[str, Any], object_map: Dict[str, str]) -> Dict[str, Any]:
+def event_parser(
+    node: Dict[str, Any],
+    yaml_root_key: str,
+    images: Dict[str, Any],
+    object_map: Dict[str, str],
+) -> Dict[str, Any]:
     """Parse SquareLine event handlers and convert to ESPHome format using factory pattern."""
     event = node.get("strval")
     if event not in EVENT_MAP:
