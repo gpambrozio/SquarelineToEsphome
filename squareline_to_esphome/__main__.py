@@ -346,6 +346,7 @@ PROP_MAP = {
     "DROPDOWN/Style_main": (None, style_parser),
     "IMAGE/Style_main": (None, style_parser),
     "LABEL/Style_main": (None, style_parser),
+    "PANEL/Style_main": (None, style_parser),
     "ROLLER/Style_main": (None, style_parser),
     "SCREEN/Style_main": (None, style_parser),
     "SLIDER/Style_main": (None, style_parser),
