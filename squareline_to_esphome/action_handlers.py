@@ -646,6 +646,10 @@ def event_parser(
     object_map: Dict[str, str],
 ) -> Dict[str, Any]:
     """Parse SquareLine event handlers and convert to ESPHome format using factory pattern."""
+    # Skip disabled events
+    if node.get("disabled", False):
+        return {}
+
     event = node.get("strval")
     if event not in EVENT_MAP:
         return {}
