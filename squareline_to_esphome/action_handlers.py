@@ -616,6 +616,92 @@ class SetTextValueWhenCheckedHandler(ActionHandler):
         }
 
 
+class MoveCursorHandler(ActionHandler):
+    """Handler for MOVE CURSOR actions."""
+
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {"target_id": "MOVE CURSOR/Target", "direction": "MOVE CURSOR/Direction"},
+        )
+
+        if not data.get("target_id") or data["target_id"] not in object_map:
+            return None
+        if not data.get("direction"):
+            return None
+
+        # Map SquareLine directions to LVGL cursor movement
+        direction_map = {
+            "UP": "lv_textarea_cursor_up(id({}));",
+            "DOWN": "lv_textarea_cursor_down(id({}));",
+            "LEFT": "lv_textarea_cursor_left(id({}));",
+            "RIGHT": "lv_textarea_cursor_right(id({}));",
+        }
+
+        direction = data["direction"].upper()
+        if direction not in direction_map:
+            return None
+
+        return {
+            "lambda": direction_map[direction].format(object_map[data["target_id"]])
+        }
+
+
+class PlayAnimationHandler(ActionHandler):
+    """Handler for PLAY ANIMATION actions."""
+
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(
+            child,
+            {
+                "target_id": "PLAY ANIMATION/Target",
+                "animation": "PLAY ANIMATION/Animation",
+                "delay": "PLAY ANIMATION/Delay",
+            },
+        )
+
+        if not data.get("target_id") or data["target_id"] not in object_map:
+            return None
+
+        # Note: ESPHome animations work differently from SquareLine animations
+        # This creates a comment for users to implement their custom animation
+        animation_name = data.get("animation", "animation")
+        delay = data.get("delay", 0)
+
+        # For now, create a lambda with a comment explaining the limitation
+        comment = f"// TODO: Implement animation '{animation_name}' for widget {object_map[data['target_id']]}"
+        if delay:
+            comment += f" with delay {delay}ms"
+
+        return {
+            "lambda": f"{comment}\n      // ESPHome uses different animation syntax than SquareLine"
+        }
+
+
+class SwitchThemeHandler(ActionHandler):
+    """Handler for SWITCH THEME actions."""
+
+    def handle(
+        self, child: Dict[str, Any], yaml_root_key: str, object_map: Dict[str, str]
+    ) -> Optional[Dict[str, Any]]:
+        data = extract_child_values(child, {"theme": "SWITCH THEME/Theme"})
+
+        if not data.get("theme"):
+            return None
+
+        # Note: ESPHome doesn't have runtime theme switching like SquareLine
+        # This creates a comment for users to implement custom theme switching
+        theme_name = data["theme"]
+
+        return {
+            "lambda": f"// TODO: Implement theme switch to '{theme_name}'\n      // ESPHome doesn't support runtime theme switching - consider using style updates"
+        }
+
+
 # Factory registry for action handlers
 ACTION_HANDLERS: Dict[str, ActionHandler] = {
     "CALL FUNCTION": CallFunctionHandler(),
@@ -636,6 +722,9 @@ ACTION_HANDLERS: Dict[str, ActionHandler] = {
     "SET TEXT VALUE FROM ARC": SetTextValueFromArcHandler(),
     "SET TEXT VALUE FROM SLIDER": SetTextValueFromSliderHandler(),
     "SET TEXT VALUE WHEN CHECKED": SetTextValueWhenCheckedHandler(),
+    "MOVE CURSOR": MoveCursorHandler(),
+    "PLAY ANIMATION": PlayAnimationHandler(),
+    "SWITCH THEME": SwitchThemeHandler(),
 }
 
 
