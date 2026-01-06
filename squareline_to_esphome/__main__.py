@@ -13,6 +13,7 @@ import termios
 import threading
 import time
 import tty
+import glob
 from pathlib import Path
 
 import pyperclip
@@ -707,12 +708,40 @@ def main():
             for key, value in img_dict.items()
         ]
 
+        # --- FONT HANDLING ---
+
+        fonts_list = []
+    # Find all .fcfg files in the project
+        fcfg_files = glob.glob(os.path.join(folder, "**", "*.fcfg"), recursive=True)
+        for fcfg_path in fcfg_files:
+            try:
+                with open(fcfg_path, "r") as f:
+                    cfg = json.load(f)
+                ttf_path = cfg.get("ttf_path")
+                if ttf_path:
+                    # If ttf_path is absolute (starts with /), treat it as relative to the project root
+                    if ttf_path.startswith("/"):
+                        ttf_abs = os.path.join(folder, ttf_path.lstrip("/"))
+                    else:
+                        ttf_abs = os.path.join(folder, ttf_path)
+                    font_rel = os.path.relpath(ttf_abs, relative_to) if relative_to else ttf_abs
+                    fonts_list.append({
+                        "id": cfg.get("codename"),
+                        "file": font_rel,
+                        "size": cfg.get("size"),
+                        "bpp": cfg.get("bpp"),
+                    })
+            except Exception as e:
+                print(f"Error loading font from {fcfg_path}: {e}", file=sys.stderr)
+
+
         lvgl_yaml = {
             "lvgl": {"pages": pages},
         }
-
         if images_list:
             lvgl_yaml["image"] = images_list
+        if fonts_list:
+            lvgl_yaml["font"] = fonts_list
 
         output = yaml.dump(
             lvgl_yaml,
