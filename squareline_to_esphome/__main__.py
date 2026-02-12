@@ -9,10 +9,8 @@ import os
 import os.path
 import re
 import sys
-import termios
 import threading
 import time
-import tty
 from pathlib import Path
 
 import pyperclip
@@ -619,16 +617,28 @@ def monitor_input_file(path, process_func):
     last_mtime = None
     stop_event = threading.Event()
 
-    def key_listener():
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setcbreak(fd)
+    if sys.platform == "win32":
+        import msvcrt
+
+        def key_listener():
             while not stop_event.is_set():
-                if sys.stdin.read(1) == "q":
+                if msvcrt.kbhit() and msvcrt.getch() == b"q":
                     stop_event.set()
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+                time.sleep(0.1)
+    else:
+        import termios
+        import tty
+
+        def key_listener():
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setcbreak(fd)
+                while not stop_event.is_set():
+                    if sys.stdin.read(1) == "q":
+                        stop_event.set()
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     listener_thread = threading.Thread(target=key_listener, daemon=True)
     listener_thread.start()
