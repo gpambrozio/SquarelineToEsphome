@@ -14,12 +14,15 @@ SquarelineToEsphome is a tool that converts UI projects created with [SquareLine
 ## Usage
 
 1. Save your project in SquareLine Studio.
-2. Make sure to have `uv` installed. Follow instructions [here](https://github.com/astral-sh/uv?tab=readme-ov-file#installation)
-3. Run the converter tool:
+2. Make sure you have `git` installed. Follow instructions [here](https://git-scm.com/install/)
+3. Make sure to have `uv` installed. Follow instructions [here](https://github.com/astral-sh/uv?tab=readme-ov-file#installation)
+4. Clone the respository with `git clone https://github.com/gpambrozio/SquarelineToEsphome.git`
+5. Go to the cloned folder: `cd SquarelineToEsphome`
+6. Run the converter tool:
     ```sh
     uv run squareline-to-esphome path/to/project.sqproj
     ```
-4. Use the generated YAML in your ESPHome configuration.
+7. Use the generated YAML in your ESPHome configuration.
 
 > **Tip**: Take advantage of event actions and custom widgets to create more interactive and feature-rich UIs. See the [Advanced Features](#advanced-features) section below for details.
 
